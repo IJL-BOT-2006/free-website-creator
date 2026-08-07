@@ -72,3 +72,8 @@ export const changeAccountRole = createServerFn({ method: "POST" })
     await logAction(context.userId, "الحسابات", "تغيير الرتبة", { target: data.userId });
     return { ok: true };
   });
+
+export const loginDirectory = createServerFn({ method: "GET" }).handler(async () => {
+  const { listDirectory } = await import("./admin.server");
+  return listDirectory();
+});

@@ -114,3 +114,13 @@ export async function logAction(
     details: details ? JSON.parse(JSON.stringify(details)) : null,
   });
 }
+
+export async function listDirectory() {
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .select("full_name, username, status")
+    .eq("status", "active")
+    .order("full_name");
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((p) => ({ full_name: p.full_name, username: p.username }));
+}
