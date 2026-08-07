@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AuthProvider } from "../lib/auth";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -77,10 +79,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "استوديو أفق — تصميم وتطوير مواقع" },
+      { title: "مقرأة حبل الله المتين — نظام الإدارة" },
       {
         name: "description",
-        content: "استوديو أفق يصمم ويطوّر مواقع ومتاجر إلكترونية عربية سريعة وأنيقة.",
+        content:
+          "نظام إدارة مقرأة حبل الله المتين: الحلقات، الطالبات، المعلمات، الحضور، التقارير والطلبات.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -124,8 +127,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AuthProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <Toaster position="top-center" richColors closeButton />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
