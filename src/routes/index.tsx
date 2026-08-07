@@ -104,7 +104,10 @@ function SignInForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!username) return toast.error("اختاري اسمك من القائمة");
+    if (!username) {
+      toast.error("اختاري اسمك من القائمة");
+      return;
+    }
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: usernameToEmail(username),
