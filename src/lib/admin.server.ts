@@ -105,12 +105,12 @@ export async function logAction(
   actorId: string | null,
   module: string,
   action: string,
-  details?: Record<string, unknown>,
+  details?: Record<string, string>,
 ) {
   await supabaseAdmin.from("system_logs").insert({
     actor_id: actorId,
     module,
     action,
-    details: details ?? null,
+    details: details ? JSON.parse(JSON.stringify(details)) : null,
   });
 }
