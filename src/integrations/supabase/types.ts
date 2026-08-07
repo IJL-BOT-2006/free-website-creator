@@ -14,16 +14,810 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      announcements: {
+        Row: {
+          audience: string
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circle_supervisors: {
+        Row: {
+          circle_id: string
+          created_at: string
+          id: string
+          supervisor_id: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          id?: string
+          supervisor_id: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          id?: string
+          supervisor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_supervisors_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_supervisors_supervisor_id_fkey"
+            columns: ["supervisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circle_teachers: {
+        Row: {
+          circle_id: string
+          created_at: string
+          id: string
+          teacher_id: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          id?: string
+          teacher_id: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          id?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_teachers_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_teachers_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circles: {
+        Row: {
+          circle_type: string
+          created_at: string
+          days: string[]
+          id: string
+          level: string | null
+          name: string
+          notes: string | null
+          status: Database["public"]["Enums"]["circle_status"]
+          time_text: string | null
+          updated_at: string
+        }
+        Insert: {
+          circle_type?: string
+          created_at?: string
+          days?: string[]
+          id?: string
+          level?: string | null
+          name: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["circle_status"]
+          time_text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          circle_type?: string
+          created_at?: string
+          days?: string[]
+          id?: string
+          level?: string | null
+          name?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["circle_status"]
+          time_text?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      login_directory: {
+        Row: {
+          active: boolean
+          full_name: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          active?: boolean
+          full_name: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          active?: boolean
+          full_name?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      memorization_reports: {
+        Row: {
+          amount: string | null
+          approved: boolean
+          approved_at: string | null
+          approved_by: string | null
+          circle_id: string
+          created_at: string
+          curriculum: string | null
+          evaluation: string | null
+          id: string
+          notes: string | null
+          report_date: string
+          student_id: string
+          teacher_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: string | null
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          circle_id: string
+          created_at?: string
+          curriculum?: string | null
+          evaluation?: string | null
+          id?: string
+          notes?: string | null
+          report_date?: string
+          student_id: string
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: string | null
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          circle_id?: string
+          created_at?: string
+          curriculum?: string | null
+          evaluation?: string | null
+          id?: string
+          notes?: string | null
+          report_date?: string
+          student_id?: string
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memorization_reports_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memorization_reports_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memorization_reports_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memorization_reports_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string | null
+          status: Database["public"]["Enums"]["account_status"]
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id: string
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["account_status"]
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["account_status"]
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      requests: {
+        Row: {
+          circle_id: string | null
+          created_at: string
+          created_by: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_notes: string | null
+          id: string
+          notes: string | null
+          reason: string
+          request_no: number
+          request_type: string
+          status: Database["public"]["Enums"]["request_status"]
+          student_id: string | null
+          target_circle_id: string | null
+          teacher_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          circle_id?: string | null
+          created_at?: string
+          created_by: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          id?: string
+          notes?: string | null
+          reason: string
+          request_no?: never
+          request_type: string
+          status?: Database["public"]["Enums"]["request_status"]
+          student_id?: string | null
+          target_circle_id?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          circle_id?: string | null
+          created_at?: string
+          created_by?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string
+          request_no?: never
+          request_type?: string
+          status?: Database["public"]["Enums"]["request_status"]
+          student_id?: string | null
+          target_circle_id?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requests_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requests_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requests_target_circle_id_fkey"
+            columns: ["target_circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requests_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resources: {
+        Row: {
+          audience: string
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          notes: string | null
+          url: string | null
+        }
+        Insert: {
+          audience?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          url?: string | null
+        }
+        Update: {
+          audience?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resources_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_attendance: {
+        Row: {
+          circle_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          recorded_by: string | null
+          session_date: string
+          status: Database["public"]["Enums"]["attendance_status"]
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          recorded_by?: string | null
+          session_date?: string
+          status: Database["public"]["Enums"]["attendance_status"]
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          recorded_by?: string | null
+          session_date?: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_attendance_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_attendance_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          from_value: string | null
+          id: string
+          notes: string | null
+          reason: string | null
+          student_id: string
+          to_value: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          from_value?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string | null
+          student_id: string
+          to_value?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          from_value?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string | null
+          student_id?: string
+          to_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          circle_id: string | null
+          country: string | null
+          created_at: string
+          enrolled_at: string
+          full_name: string
+          id: string
+          level: string | null
+          notes: string | null
+          phone: string | null
+          pledges_count: number
+          status: Database["public"]["Enums"]["student_status"]
+          updated_at: string
+          warnings_count: number
+        }
+        Insert: {
+          circle_id?: string | null
+          country?: string | null
+          created_at?: string
+          enrolled_at?: string
+          full_name: string
+          id?: string
+          level?: string | null
+          notes?: string | null
+          phone?: string | null
+          pledges_count?: number
+          status?: Database["public"]["Enums"]["student_status"]
+          updated_at?: string
+          warnings_count?: number
+        }
+        Update: {
+          circle_id?: string | null
+          country?: string | null
+          created_at?: string
+          enrolled_at?: string
+          full_name?: string
+          id?: string
+          level?: string | null
+          notes?: string | null
+          phone?: string | null
+          pledges_count?: number
+          status?: Database["public"]["Enums"]["student_status"]
+          updated_at?: string
+          warnings_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          module: string
+          result: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          module: string
+          result?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          module?: string
+          result?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_logs_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assignee_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          task_no: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          task_no?: never
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          task_no?: never
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_attendance: {
+        Row: {
+          circle_id: string
+          created_at: string
+          id: string
+          makeup_date: string | null
+          makeup_done: boolean
+          reason: string | null
+          recorded_by: string | null
+          session_date: string
+          status: Database["public"]["Enums"]["attendance_status"]
+          teacher_id: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          id?: string
+          makeup_date?: string | null
+          makeup_done?: boolean
+          reason?: string | null
+          recorded_by?: string | null
+          session_date?: string
+          status: Database["public"]["Enums"]["attendance_status"]
+          teacher_id: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          id?: string
+          makeup_date?: string | null
+          makeup_done?: boolean
+          reason?: string | null
+          recorded_by?: string | null
+          session_date?: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_attendance_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_attendance_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_attendance_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_view_circle: {
+        Args: { _circle_id: string; _user_id: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      supervises_circle: {
+        Args: { _circle_id: string; _user_id: string }
+        Returns: boolean
+      }
+      teaches_circle: {
+        Args: { _circle_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      account_status: "active" | "suspended" | "archived"
+      app_role: "manager" | "deputy" | "supervisor" | "teacher"
+      attendance_status: "present" | "excused" | "unexcused"
+      circle_status: "active" | "paused" | "closed"
+      request_status: "pending" | "approved" | "rejected" | "archived"
+      student_status: "active" | "paused" | "warned" | "expelled"
+      task_status: "in_progress" | "done" | "not_done"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +944,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      account_status: ["active", "suspended", "archived"],
+      app_role: ["manager", "deputy", "supervisor", "teacher"],
+      attendance_status: ["present", "excused", "unexcused"],
+      circle_status: ["active", "paused", "closed"],
+      request_status: ["pending", "approved", "rejected", "archived"],
+      student_status: ["active", "paused", "warned", "expelled"],
+      task_status: ["in_progress", "done", "not_done"],
+    },
   },
 } as const
