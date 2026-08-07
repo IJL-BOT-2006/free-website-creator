@@ -77,10 +77,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "استوديو أفق — تصميم وتطوير مواقع" },
+      { title: "مقرأة حبل الله المتين — نظام الإدارة" },
       {
         name: "description",
-        content: "استوديو أفق يصمم ويطوّر مواقع ومتاجر إلكترونية عربية سريعة وأنيقة.",
+        content:
+          "نظام إدارة مقرأة حبل الله المتين: الحلقات، الطالبات، المعلمات، الحضور، التقارير والطلبات.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
