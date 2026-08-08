@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppCirclesRouteImport } from './routes/_app/circles'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppStudentsRouteImport } from './routes/_app/students'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -33,16 +34,23 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppStudentsRoute = AppStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/students': typeof AppStudentsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/students': typeof AppStudentsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,13 +58,20 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_app/circles': typeof AppCirclesRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/students': typeof AppStudentsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/circles' | '/dashboard'
+  fullPaths: '/' | '/circles' | '/dashboard' | '/students'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/circles' | '/dashboard'
-  id: '__root__' | '/' | '/_app' | '/_app/circles' | '/_app/dashboard'
+  to: '/' | '/circles' | '/dashboard' | '/students'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/_app/circles'
+    | '/_app/dashboard'
+    | '/_app/students'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,17 +109,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/students': {
+      id: '/_app/students'
+      path: '/students'
+      fullPath: '/students'
+      preLoaderRoute: typeof AppStudentsRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppCirclesRoute: typeof AppCirclesRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppStudentsRoute: typeof AppStudentsRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCirclesRoute: AppCirclesRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppStudentsRoute: AppStudentsRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
