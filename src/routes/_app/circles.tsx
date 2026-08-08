@@ -55,7 +55,7 @@ type CircleForm = {
 
 const EMPTY: CircleForm = {
   name: "",
-  circle_type: CIRCLE_TYPES[0],
+  circle_type: "قرآن كريم",
   level: "",
   time_text: "",
   days: [],
