@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppAttendanceRouteImport } from './routes/_app/attendance'
 import { Route as AppCirclesRouteImport } from './routes/_app/circles'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppReportsRouteImport } from './routes/_app/reports'
 import { Route as AppStudentsRouteImport } from './routes/_app/students'
 
 const IndexRoute = IndexRouteImport.update({
@@ -40,6 +41,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppStudentsRoute = AppStudentsRouteImport.update({
   id: '/students',
   path: '/students',
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/attendance': typeof AppAttendanceRoute
   '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/reports': typeof AppReportsRoute
   '/students': typeof AppStudentsRoute
 }
 export interface FileRoutesByTo {
@@ -58,6 +65,7 @@ export interface FileRoutesByTo {
   '/attendance': typeof AppAttendanceRoute
   '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/reports': typeof AppReportsRoute
   '/students': typeof AppStudentsRoute
 }
 export interface FileRoutesById {
@@ -67,13 +75,15 @@ export interface FileRoutesById {
   '/_app/attendance': typeof AppAttendanceRoute
   '/_app/circles': typeof AppCirclesRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/reports': typeof AppReportsRoute
   '/_app/students': typeof AppStudentsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/attendance' | '/circles' | '/dashboard' | '/students'
+  fullPaths:
+    '/' | '/attendance' | '/circles' | '/dashboard' | '/reports' | '/students'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/attendance' | '/circles' | '/dashboard' | '/students'
+  to: '/' | '/attendance' | '/circles' | '/dashboard' | '/reports' | '/students'
   id:
     | '__root__'
     | '/'
@@ -81,6 +91,7 @@ export interface FileRouteTypes {
     | '/_app/attendance'
     | '/_app/circles'
     | '/_app/dashboard'
+    | '/_app/reports'
     | '/_app/students'
   fileRoutesById: FileRoutesById
 }
@@ -126,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/students': {
       id: '/_app/students'
       path: '/students'
@@ -140,6 +158,7 @@ interface AppRouteChildren {
   AppAttendanceRoute: typeof AppAttendanceRoute
   AppCirclesRoute: typeof AppCirclesRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppReportsRoute: typeof AppReportsRoute
   AppStudentsRoute: typeof AppStudentsRoute
 }
 
@@ -147,6 +166,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAttendanceRoute: AppAttendanceRoute,
   AppCirclesRoute: AppCirclesRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppReportsRoute: AppReportsRoute,
   AppStudentsRoute: AppStudentsRoute,
 }
 
