@@ -187,7 +187,7 @@ function Row({
   onChange,
 }: {
   name: string;
-  value?: Status;
+  value?: Status | undefined;
   onChange: (v: Status) => void;
 }) {
   return (
