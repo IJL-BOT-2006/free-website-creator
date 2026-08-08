@@ -11,7 +11,19 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as AppAnnouncementsRouteImport } from './routes/_app/announcements'
+import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
+import { Route as AppAttendanceRouteImport } from './routes/_app/attendance'
+import { Route as AppCirclesRouteImport } from './routes/_app/circles'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppLogsRouteImport } from './routes/_app/logs'
+import { Route as AppReportsRouteImport } from './routes/_app/reports'
+import { Route as AppRequestsRouteImport } from './routes/_app/requests'
+import { Route as AppResourcesRouteImport } from './routes/_app/resources'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppStudentsRouteImport } from './routes/_app/students'
+import { Route as AppTasksRouteImport } from './routes/_app/tasks'
+import { Route as AppTeachersRouteImport } from './routes/_app/teachers'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,32 +34,172 @@ const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAnnouncementsRoute = AppAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssistantRoute = AppAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAttendanceRoute = AppAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCirclesRoute = AppCirclesRouteImport.update({
+  id: '/circles',
+  path: '/circles',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppLogsRoute = AppLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRequestsRoute = AppRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppResourcesRoute = AppResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStudentsRoute = AppStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTasksRoute = AppTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTeachersRoute = AppTeachersRouteImport.update({
+  id: '/teachers',
+  path: '/teachers',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/announcements': typeof AppAnnouncementsRoute
+  '/assistant': typeof AppAssistantRoute
+  '/attendance': typeof AppAttendanceRoute
+  '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/logs': typeof AppLogsRoute
+  '/reports': typeof AppReportsRoute
+  '/requests': typeof AppRequestsRoute
+  '/resources': typeof AppResourcesRoute
+  '/settings': typeof AppSettingsRoute
+  '/students': typeof AppStudentsRoute
+  '/tasks': typeof AppTasksRoute
+  '/teachers': typeof AppTeachersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/announcements': typeof AppAnnouncementsRoute
+  '/assistant': typeof AppAssistantRoute
+  '/attendance': typeof AppAttendanceRoute
+  '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/logs': typeof AppLogsRoute
+  '/reports': typeof AppReportsRoute
+  '/requests': typeof AppRequestsRoute
+  '/resources': typeof AppResourcesRoute
+  '/settings': typeof AppSettingsRoute
+  '/students': typeof AppStudentsRoute
+  '/tasks': typeof AppTasksRoute
+  '/teachers': typeof AppTeachersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/_app/announcements': typeof AppAnnouncementsRoute
+  '/_app/assistant': typeof AppAssistantRoute
+  '/_app/attendance': typeof AppAttendanceRoute
+  '/_app/circles': typeof AppCirclesRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/logs': typeof AppLogsRoute
+  '/_app/reports': typeof AppReportsRoute
+  '/_app/requests': typeof AppRequestsRoute
+  '/_app/resources': typeof AppResourcesRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/students': typeof AppStudentsRoute
+  '/_app/tasks': typeof AppTasksRoute
+  '/_app/teachers': typeof AppTeachersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/announcements'
+    | '/assistant'
+    | '/attendance'
+    | '/circles'
+    | '/dashboard'
+    | '/logs'
+    | '/reports'
+    | '/requests'
+    | '/resources'
+    | '/settings'
+    | '/students'
+    | '/tasks'
+    | '/teachers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard'
-  id: '__root__' | '/' | '/_app' | '/_app/dashboard'
+  to:
+    | '/'
+    | '/announcements'
+    | '/assistant'
+    | '/attendance'
+    | '/circles'
+    | '/dashboard'
+    | '/logs'
+    | '/reports'
+    | '/requests'
+    | '/resources'
+    | '/settings'
+    | '/students'
+    | '/tasks'
+    | '/teachers'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/_app/announcements'
+    | '/_app/assistant'
+    | '/_app/attendance'
+    | '/_app/circles'
+    | '/_app/dashboard'
+    | '/_app/logs'
+    | '/_app/reports'
+    | '/_app/requests'
+    | '/_app/resources'
+    | '/_app/settings'
+    | '/_app/students'
+    | '/_app/tasks'
+    | '/_app/teachers'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -71,6 +223,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/announcements': {
+      id: '/_app/announcements'
+      path: '/announcements'
+      fullPath: '/announcements'
+      preLoaderRoute: typeof AppAnnouncementsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/assistant': {
+      id: '/_app/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AppAssistantRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/attendance': {
+      id: '/_app/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AppAttendanceRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/circles': {
+      id: '/_app/circles'
+      path: '/circles'
+      fullPath: '/circles'
+      preLoaderRoute: typeof AppCirclesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -78,15 +258,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/logs': {
+      id: '/_app/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof AppLogsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/requests': {
+      id: '/_app/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof AppRequestsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/resources': {
+      id: '/_app/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof AppResourcesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/students': {
+      id: '/_app/students'
+      path: '/students'
+      fullPath: '/students'
+      preLoaderRoute: typeof AppStudentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/tasks': {
+      id: '/_app/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof AppTasksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/teachers': {
+      id: '/_app/teachers'
+      path: '/teachers'
+      fullPath: '/teachers'
+      preLoaderRoute: typeof AppTeachersRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAnnouncementsRoute: typeof AppAnnouncementsRoute
+  AppAssistantRoute: typeof AppAssistantRoute
+  AppAttendanceRoute: typeof AppAttendanceRoute
+  AppCirclesRoute: typeof AppCirclesRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppLogsRoute: typeof AppLogsRoute
+  AppReportsRoute: typeof AppReportsRoute
+  AppRequestsRoute: typeof AppRequestsRoute
+  AppResourcesRoute: typeof AppResourcesRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppStudentsRoute: typeof AppStudentsRoute
+  AppTasksRoute: typeof AppTasksRoute
+  AppTeachersRoute: typeof AppTeachersRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAnnouncementsRoute: AppAnnouncementsRoute,
+  AppAssistantRoute: AppAssistantRoute,
+  AppAttendanceRoute: AppAttendanceRoute,
+  AppCirclesRoute: AppCirclesRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppLogsRoute: AppLogsRoute,
+  AppReportsRoute: AppReportsRoute,
+  AppRequestsRoute: AppRequestsRoute,
+  AppResourcesRoute: AppResourcesRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppStudentsRoute: AppStudentsRoute,
+  AppTasksRoute: AppTasksRoute,
+  AppTeachersRoute: AppTeachersRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
