@@ -35,7 +35,8 @@ export const Route = createFileRoute("/_app/reports")({
 });
 
 function ReportsPage() {
-  const { profile, isSupervisorPlus } = useAuth();
+  const { profile, isAdmin, isSupervisor } = useAuth();
+  const isSupervisorPlus = isAdmin || isSupervisor;
   const qc = useQueryClient();
   const circles = useCircles();
   const students = useStudents();
