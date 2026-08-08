@@ -17,6 +17,7 @@ import { Route as AppCirclesRouteImport } from './routes/_app/circles'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppReportsRouteImport } from './routes/_app/reports'
 import { Route as AppRequestsRouteImport } from './routes/_app/requests'
+import { Route as AppResourcesRouteImport } from './routes/_app/resources'
 import { Route as AppStudentsRouteImport } from './routes/_app/students'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
 import { Route as AppTeachersRouteImport } from './routes/_app/teachers'
@@ -60,6 +61,11 @@ const AppRequestsRoute = AppRequestsRouteImport.update({
   path: '/requests',
   getParentRoute: () => AppRoute,
 } as any)
+const AppResourcesRoute = AppResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppStudentsRoute = AppStudentsRouteImport.update({
   id: '/students',
   path: '/students',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/reports': typeof AppReportsRoute
   '/requests': typeof AppRequestsRoute
+  '/resources': typeof AppResourcesRoute
   '/students': typeof AppStudentsRoute
   '/tasks': typeof AppTasksRoute
   '/teachers': typeof AppTeachersRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/reports': typeof AppReportsRoute
   '/requests': typeof AppRequestsRoute
+  '/resources': typeof AppResourcesRoute
   '/students': typeof AppStudentsRoute
   '/tasks': typeof AppTasksRoute
   '/teachers': typeof AppTeachersRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/requests': typeof AppRequestsRoute
+  '/_app/resources': typeof AppResourcesRoute
   '/_app/students': typeof AppStudentsRoute
   '/_app/tasks': typeof AppTasksRoute
   '/_app/teachers': typeof AppTeachersRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/reports'
     | '/requests'
+    | '/resources'
     | '/students'
     | '/tasks'
     | '/teachers'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/reports'
     | '/requests'
+    | '/resources'
     | '/students'
     | '/tasks'
     | '/teachers'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/reports'
     | '/_app/requests'
+    | '/_app/resources'
     | '/_app/students'
     | '/_app/tasks'
     | '/_app/teachers'
@@ -217,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRequestsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/resources': {
+      id: '/_app/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof AppResourcesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/students': {
       id: '/_app/students'
       path: '/students'
@@ -248,6 +267,7 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppReportsRoute: typeof AppReportsRoute
   AppRequestsRoute: typeof AppRequestsRoute
+  AppResourcesRoute: typeof AppResourcesRoute
   AppStudentsRoute: typeof AppStudentsRoute
   AppTasksRoute: typeof AppTasksRoute
   AppTeachersRoute: typeof AppTeachersRoute
@@ -260,6 +280,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppReportsRoute: AppReportsRoute,
   AppRequestsRoute: AppRequestsRoute,
+  AppResourcesRoute: AppResourcesRoute,
   AppStudentsRoute: AppStudentsRoute,
   AppTasksRoute: AppTasksRoute,
   AppTeachersRoute: AppTeachersRoute,
