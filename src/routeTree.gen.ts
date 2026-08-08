@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppAnnouncementsRouteImport } from './routes/_app/announcements'
+import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
 import { Route as AppAttendanceRouteImport } from './routes/_app/attendance'
 import { Route as AppCirclesRouteImport } from './routes/_app/circles'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
@@ -36,6 +37,11 @@ const AppRoute = AppRouteImport.update({
 const AppAnnouncementsRoute = AppAnnouncementsRouteImport.update({
   id: '/announcements',
   path: '/announcements',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssistantRoute = AppAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAttendanceRoute = AppAttendanceRouteImport.update({
@@ -97,6 +103,7 @@ const AppTeachersRoute = AppTeachersRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/announcements': typeof AppAnnouncementsRoute
+  '/assistant': typeof AppAssistantRoute
   '/attendance': typeof AppAttendanceRoute
   '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/announcements': typeof AppAnnouncementsRoute
+  '/assistant': typeof AppAssistantRoute
   '/attendance': typeof AppAttendanceRoute
   '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_app/announcements': typeof AppAnnouncementsRoute
+  '/_app/assistant': typeof AppAssistantRoute
   '/_app/attendance': typeof AppAttendanceRoute
   '/_app/circles': typeof AppCirclesRoute
   '/_app/dashboard': typeof AppDashboardRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/announcements'
+    | '/assistant'
     | '/attendance'
     | '/circles'
     | '/dashboard'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/announcements'
+    | '/assistant'
     | '/attendance'
     | '/circles'
     | '/dashboard'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/_app/announcements'
+    | '/_app/assistant'
     | '/_app/attendance'
     | '/_app/circles'
     | '/_app/dashboard'
@@ -216,6 +228,13 @@ declare module '@tanstack/react-router' {
       path: '/announcements'
       fullPath: '/announcements'
       preLoaderRoute: typeof AppAnnouncementsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/assistant': {
+      id: '/_app/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AppAssistantRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/attendance': {
@@ -300,6 +319,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAnnouncementsRoute: typeof AppAnnouncementsRoute
+  AppAssistantRoute: typeof AppAssistantRoute
   AppAttendanceRoute: typeof AppAttendanceRoute
   AppCirclesRoute: typeof AppCirclesRoute
   AppDashboardRoute: typeof AppDashboardRoute
@@ -315,6 +335,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAnnouncementsRoute: AppAnnouncementsRoute,
+  AppAssistantRoute: AppAssistantRoute,
   AppAttendanceRoute: AppAttendanceRoute,
   AppCirclesRoute: AppCirclesRoute,
   AppDashboardRoute: AppDashboardRoute,
