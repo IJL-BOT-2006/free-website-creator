@@ -386,7 +386,7 @@ function StatusButtons({
 }: {
   value?: Status | undefined;
   onChange: (v: Status) => void;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }) {
   return (
     <div className="flex gap-1">
@@ -423,7 +423,7 @@ function Row({
   name: string;
   value?: Status | undefined;
   onChange: (v: Status) => void;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
