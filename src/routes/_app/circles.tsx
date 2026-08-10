@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BookOpenText, Pencil, Plus, Trash2 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BookOpenText, GraduationCap, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/circles")({
@@ -148,6 +149,44 @@ function CirclesPage() {
     });
   }
 
+  const stats = useQuery({
+    queryKey: ["circle-stats"],
+    queryFn: async () => {
+      const since = new Date();
+      since.setDate(since.getDate() - 30);
+      const iso = since.toISOString().slice(0, 10);
+      const [students, links, attendance] = await Promise.all([
+        supabase.from("students").select("id, circle_id, status"),
+        supabase.from("circle_teachers").select("circle_id, teacher_id"),
+        supabase.from("student_attendance").select("circle_id, status").gte("session_date", iso),
+      ]);
+      return {
+        students: students.data ?? [],
+        links: links.data ?? [],
+        attendance: attendance.data ?? [],
+      };
+    },
+  });
+
+  const staffNames = useMemo(
+    () => new Map((staff.data ?? []).map((s) => [s.id, s.full_name])),
+    [staff.data],
+  );
+
+  const circleStat = (id: string) => {
+    const d = stats.data;
+    const studentsCount = (d?.students ?? []).filter((s) => s.circle_id === id).length;
+    const teacherNames = (d?.links ?? [])
+      .filter((l) => l.circle_id === id)
+      .map((l) => staffNames.get(l.teacher_id))
+      .filter(Boolean) as string[];
+    const att = (d?.attendance ?? []).filter((a) => a.circle_id === id);
+    const rate = att.length
+      ? Math.round((att.filter((a) => a.status === "present").length / att.length) * 100)
+      : 0;
+    return { studentsCount, teacherNames, rate };
+  };
+
   const teachers = (staff.data ?? []).filter((s) => s.role === "teacher");
   const supervisors = (staff.data ?? []).filter((s) => s.role === "supervisor");
 
@@ -190,7 +229,32 @@ function CirclesPage() {
               <p className="mt-4 text-sm text-muted-foreground">
                 {c.time_text || "بدون وقت محدد"} · {c.days?.length ? c.days.join("، ") : "بدون أيام"}
               </p>
-              {c.notes && <p className="mt-2 text-xs text-muted-foreground">{c.notes}</p>}
+              {(() => {
+                const st = circleStat(c.id);
+                return (
+                  <div className="mt-4 space-y-3">
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className="flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1">
+                        <GraduationCap className="size-3.5" /> {st.studentsCount} طالبة
+                      </span>
+                      <span className="flex min-w-0 items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1">
+                        <Users className="size-3.5 shrink-0" />
+                        <span className="truncate">
+                          {st.teacherNames.length ? st.teacherNames.join("، ") : "بدون معلمة"}
+                        </span>
+                      </span>
+                    </div>
+                    <div>
+                      <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                        <span>نسبة الحضور (٣٠ يومًا)</span>
+                        <span className="font-semibold text-foreground">{st.rate}%</span>
+                      </div>
+                      <Progress value={st.rate} className="h-2" />
+                    </div>
+                  </div>
+                );
+              })()}
+              {c.notes && <p className="mt-3 text-xs text-muted-foreground">{c.notes}</p>}
               {isAdmin && (
                 <div className="mt-4 flex gap-2">
                   <Button size="sm" variant="secondary" onClick={() => openEdit(c.id)}>
@@ -237,8 +301,20 @@ function CirclesPage() {
                       {CIRCLE_TYPES.map((t) => (
                         <SelectItem key={t} value={t}>{t}</SelectItem>
                       ))}
+                      {!CIRCLE_TYPES.includes(form.circle_type) && form.circle_type !== "أخرى" && (
+                        <SelectItem value={form.circle_type}>{form.circle_type}</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
+                  {(form.circle_type === "أخرى" || !CIRCLE_TYPES.includes(form.circle_type)) && (
+                    <Input
+                      placeholder="اكتبي نوع الحلقة (مثل: الفقه، الشمائل المحمدية)"
+                      value={form.circle_type === "أخرى" ? "" : form.circle_type}
+                      onChange={(e) =>
+                        setForm({ ...form, circle_type: e.target.value || "أخرى" })
+                      }
+                    />
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>الحالة</Label>

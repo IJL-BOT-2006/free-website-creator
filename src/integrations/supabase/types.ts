@@ -18,9 +18,12 @@ export type Database = {
         Row: {
           audience: string
           content: string
+          cover_url: string | null
           created_at: string
           created_by: string | null
           id: string
+          pinned: boolean
+          publish_date: string | null
           published: boolean
           title: string
           updated_at: string
@@ -28,9 +31,12 @@ export type Database = {
         Insert: {
           audience?: string
           content: string
+          cover_url?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
+          pinned?: boolean
+          publish_date?: string | null
           published?: boolean
           title: string
           updated_at?: string
@@ -38,9 +44,12 @@ export type Database = {
         Update: {
           audience?: string
           content?: string
+          cover_url?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
+          pinned?: boolean
+          publish_date?: string | null
           published?: boolean
           title?: string
           updated_at?: string
@@ -200,6 +209,7 @@ export type Database = {
           id: string
           notes: string | null
           report_date: string
+          revision: string | null
           student_id: string
           teacher_id: string | null
           updated_at: string
@@ -216,6 +226,7 @@ export type Database = {
           id?: string
           notes?: string | null
           report_date?: string
+          revision?: string | null
           student_id: string
           teacher_id?: string | null
           updated_at?: string
@@ -232,6 +243,7 @@ export type Database = {
           id?: string
           notes?: string | null
           report_date?: string
+          revision?: string | null
           student_id?: string
           teacher_id?: string | null
           updated_at?: string
@@ -269,31 +281,52 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
+          birth_date: string | null
           created_at: string
+          education_level: string | null
           full_name: string
           id: string
           notes: string | null
+          occupation: string | null
+          origin_country: string | null
           phone: string | null
+          phone_code: string | null
+          residence_country: string | null
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
           username: string
         }
         Insert: {
+          avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
+          education_level?: string | null
           full_name: string
           id: string
           notes?: string | null
+          occupation?: string | null
+          origin_country?: string | null
           phone?: string | null
+          phone_code?: string | null
+          residence_country?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           username: string
         }
         Update: {
+          avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
+          education_level?: string | null
           full_name?: string
           id?: string
           notes?: string | null
+          occupation?: string | null
+          origin_country?: string | null
           phone?: string | null
+          phone_code?: string | null
+          residence_country?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           username?: string
@@ -302,14 +335,18 @@ export type Database = {
       }
       requests: {
         Row: {
+          assignee_id: string | null
+          attachment_url: string | null
           circle_id: string | null
           created_at: string
           created_by: string
           decided_at: string | null
           decided_by: string | null
           decision_notes: string | null
+          follow_up_date: string | null
           id: string
           notes: string | null
+          priority: string
           reason: string
           request_no: number
           request_type: string
@@ -320,14 +357,18 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assignee_id?: string | null
+          attachment_url?: string | null
           circle_id?: string | null
           created_at?: string
           created_by: string
           decided_at?: string | null
           decided_by?: string | null
           decision_notes?: string | null
+          follow_up_date?: string | null
           id?: string
           notes?: string | null
+          priority?: string
           reason: string
           request_no?: never
           request_type: string
@@ -338,14 +379,18 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assignee_id?: string | null
+          attachment_url?: string | null
           circle_id?: string | null
           created_at?: string
           created_by?: string
           decided_at?: string | null
           decided_by?: string | null
           decision_notes?: string | null
+          follow_up_date?: string | null
           id?: string
           notes?: string | null
+          priority?: string
           reason?: string
           request_no?: never
           request_type?: string
@@ -356,6 +401,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "requests_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "requests_circle_id_fkey"
             columns: ["circle_id"]
@@ -406,6 +458,8 @@ export type Database = {
           category: string
           created_at: string
           created_by: string | null
+          file_url: string | null
+          folder: string | null
           id: string
           name: string
           notes: string | null
@@ -416,6 +470,8 @@ export type Database = {
           category?: string
           created_at?: string
           created_by?: string | null
+          file_url?: string | null
+          folder?: string | null
           id?: string
           name: string
           notes?: string | null
@@ -426,6 +482,8 @@ export type Database = {
           category?: string
           created_at?: string
           created_by?: string | null
+          file_url?: string | null
+          folder?: string | null
           id?: string
           name?: string
           notes?: string | null
@@ -552,45 +610,60 @@ export type Database = {
       }
       students: {
         Row: {
+          birth_date: string | null
           circle_id: string | null
           country: string | null
           created_at: string
+          education_level: string | null
           enrolled_at: string
           full_name: string
           id: string
           level: string | null
           notes: string | null
+          occupation: string | null
+          origin_country: string | null
           phone: string | null
+          phone_code: string | null
           pledges_count: number
           status: Database["public"]["Enums"]["student_status"]
           updated_at: string
           warnings_count: number
         }
         Insert: {
+          birth_date?: string | null
           circle_id?: string | null
           country?: string | null
           created_at?: string
+          education_level?: string | null
           enrolled_at?: string
           full_name: string
           id?: string
           level?: string | null
           notes?: string | null
+          occupation?: string | null
+          origin_country?: string | null
           phone?: string | null
+          phone_code?: string | null
           pledges_count?: number
           status?: Database["public"]["Enums"]["student_status"]
           updated_at?: string
           warnings_count?: number
         }
         Update: {
+          birth_date?: string | null
           circle_id?: string | null
           country?: string | null
           created_at?: string
+          education_level?: string | null
           enrolled_at?: string
           full_name?: string
           id?: string
           level?: string | null
           notes?: string | null
+          occupation?: string | null
+          origin_country?: string | null
           phone?: string | null
+          phone_code?: string | null
           pledges_count?: number
           status?: Database["public"]["Enums"]["student_status"]
           updated_at?: string
@@ -647,39 +720,51 @@ export type Database = {
       tasks: {
         Row: {
           assignee_id: string
+          attachment_url: string | null
+          coordinator_id: string | null
           created_at: string
           created_by: string
           description: string | null
           due_date: string | null
           id: string
           notes: string | null
+          priority: string
           status: Database["public"]["Enums"]["task_status"]
+          subtasks: Json
           task_no: number
           title: string
           updated_at: string
         }
         Insert: {
           assignee_id: string
+          attachment_url?: string | null
+          coordinator_id?: string | null
           created_at?: string
           created_by: string
           description?: string | null
           due_date?: string | null
           id?: string
           notes?: string | null
+          priority?: string
           status?: Database["public"]["Enums"]["task_status"]
+          subtasks?: Json
           task_no?: never
           title: string
           updated_at?: string
         }
         Update: {
           assignee_id?: string
+          attachment_url?: string | null
+          coordinator_id?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
           due_date?: string | null
           id?: string
           notes?: string | null
+          priority?: string
           status?: Database["public"]["Enums"]["task_status"]
+          subtasks?: Json
           task_no?: never
           title?: string
           updated_at?: string
@@ -688,6 +773,13 @@ export type Database = {
           {
             foreignKeyName: "tasks_assignee_id_fkey"
             columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_coordinator_id_fkey"
+            columns: ["coordinator_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

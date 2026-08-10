@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
+import { Logo } from "@/components/logo";
 import { ROLE_LABELS, type AppRole } from "@/lib/constants";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
@@ -68,6 +69,30 @@ function AppLayout() {
     setOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    let startX: number | null = null;
+    let startY = 0;
+    const onStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      startY = t.clientY;
+      startX = window.innerWidth - t.clientX < 32 ? t.clientX : null;
+    };
+    const onEnd = (e: TouchEvent) => {
+      const t = e.changedTouches[0];
+      if (startX === null || !t) return;
+      const dx = startX - t.clientX;
+      if (dx > 60 && Math.abs(t.clientY - startY) < 70) setOpen(true);
+      startX = null;
+    };
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchend", onEnd, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchend", onEnd);
+    };
+  }, []);
+
   if (loading || !session) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -87,9 +112,7 @@ function AppLayout() {
         )}
       >
         <div className="mb-8 flex items-center gap-3 px-2">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground">
-            <BookOpenText className="size-5" />
-          </div>
+          <Logo className="size-11 shadow-sm ring-1 ring-sidebar-border" />
           <div className="leading-tight">
             <p className="font-display text-base font-bold">حبل الله المتين</p>
             <p className="text-xs text-sidebar-foreground/70">نظام إدارة المقرأة</p>
@@ -155,8 +178,9 @@ function AppLayout() {
           >
             <Menu className="size-5" />
           </button>
+          <Logo className="size-9 shrink-0 ring-1 ring-border" />
           <div className="flex items-center gap-2 text-sm">
-            <ClipboardList className="size-4 text-primary" />
+            <ClipboardList className="hidden size-4 text-primary sm:block" />
             <span className="font-semibold">{profile?.full_name ?? "—"}</span>
             <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
               {role ? ROLE_LABELS[role] : "بدون رتبة"}

@@ -32,17 +32,39 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => {
+  const start = React.useRef<number | null>(null);
+  const [drag, setDrag] = React.useState(0);
+  const close = () =>
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  return (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
+      onTouchStart={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        if (el.scrollTop > 4) return;
+        start.current = e.touches[0]?.clientY ?? null;
+      }}
+      onTouchMove={(e) => {
+        if (start.current === null) return;
+        const dy = (e.touches[0]?.clientY ?? 0) - start.current;
+        setDrag(dy > 0 ? dy : 0);
+      }}
+      onTouchEnd={() => {
+        if (drag > 110) close();
+        start.current = null;
+        setDrag(0);
+      }}
+      style={drag ? { transform: `translate(-50%, calc(-50% + ${drag}px))`, transition: "none" } : undefined}
       className={cn(
         "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg",
         className,
       )}
       {...props}
     >
+      <div className="mx-auto -mt-2 mb-1 h-1.5 w-12 rounded-full bg-muted md:hidden" aria-hidden />
       {children}
       <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background cursor-pointer transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
         <X className="h-4 w-4" />
@@ -50,7 +72,8 @@ const DialogContent = React.forwardRef<
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
-));
+  );
+});
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
