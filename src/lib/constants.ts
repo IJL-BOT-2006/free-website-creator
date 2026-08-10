@@ -99,3 +99,41 @@ export function formatDateTime(value?: string | null) {
     minute: "2-digit",
   });
 }
+
+export const WARNING_LEVEL_LABELS: Record<string, string> = {
+  "1": "التنبيه الأول",
+  "2": "التنبيه الثاني",
+  "3": "التنبيه الثالث",
+};
+
+export const PRIORITY_LABELS: Record<string, string> = {
+  low: "منخفضة",
+  normal: "عادية",
+  high: "عالية",
+  urgent: "عاجلة",
+};
+
+export const PRIORITY_TONES: Record<string, "default" | "success" | "warning" | "danger" | "info"> = {
+  low: "default",
+  normal: "info",
+  high: "warning",
+  urgent: "danger",
+};
+
+export const EDUCATION_LEVELS = [
+  "ابتدائي",
+  "متوسط",
+  "ثانوي",
+  "دبلوم",
+  "بكالوريوس",
+  "ماجستير",
+  "دكتوراه",
+];
+
+export const RESOURCE_FOLDERS = [
+  "المناهج",
+  "النماذج الإدارية",
+  "الاستكرات والشهادات",
+  "روابط مفيدة",
+  "ملفات عامة",
+];
