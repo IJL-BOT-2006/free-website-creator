@@ -72,7 +72,7 @@ function parseSubtasks(value: unknown): Subtask[] {
   if (!Array.isArray(value)) return [];
   return value
     .filter((s): s is Record<string, unknown> => !!s && typeof s === "object")
-    .map((s) => ({ title: String(s.title ?? ""), done: Boolean(s.done) }))
+    .map((s) => ({ title: String(s["title"] ?? ""), done: Boolean(s["done"]) }))
     .filter((s) => s.title);
 }
 
@@ -144,10 +144,13 @@ function TasksPage() {
 
   const update = useMutation({
     mutationFn: async (v: { id: string; status?: string; subtasks?: Subtask[] }) => {
-      const patch: Record<string, unknown> = {};
-      if (v.status) patch.status = v.status;
-      if (v.subtasks) patch.subtasks = JSON.parse(JSON.stringify(v.subtasks));
-      const { error } = await supabase.from("tasks").update(patch).eq("id", v.id);
+      const patch: { status?: "in_progress" | "done" | "not_done"; subtasks?: Subtask[] } = {};
+      if (v.status) patch.status = v.status as "done";
+      if (v.subtasks) patch.subtasks = v.subtasks;
+      const { error } = await supabase
+        .from("tasks")
+        .update(JSON.parse(JSON.stringify(patch)))
+        .eq("id", v.id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["tasks"] }),
@@ -175,9 +178,9 @@ function TasksPage() {
       />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <StatCard label="قيد التنفيذ" value={counts.in_progress ?? 0} icon={<CircleDashed className="size-5" />} tone="warning" />
-        <StatCard label="تم الإنجاز" value={counts.done ?? 0} icon={<CheckCircle2 className="size-5" />} tone="success" />
-        <StatCard label="لم يتم" value={counts.not_done ?? 0} icon={<XCircle className="size-5" />} tone="danger" />
+        <StatCard label="قيد التنفيذ" value={counts["in_progress"] ?? 0} icon={<CircleDashed className="size-5" />} tone="warning" />
+        <StatCard label="تم الإنجاز" value={counts["done"] ?? 0} icon={<CheckCircle2 className="size-5" />} tone="success" />
+        <StatCard label="لم يتم" value={counts["not_done"] ?? 0} icon={<XCircle className="size-5" />} tone="danger" />
       </div>
 
       <div className="card-panel mb-6 flex flex-wrap gap-3 p-4">
