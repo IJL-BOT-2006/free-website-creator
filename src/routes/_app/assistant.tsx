@@ -99,7 +99,7 @@ function AssistantPage() {
             ) : (
               messages.map((m, i) => (
                 <Message from={m.role} key={i}>
-                  <MessageContent variant={m.role === "user" ? "contained" : "flat"}>
+                  <MessageContent>
                     <MessageResponse>{m.content}</MessageResponse>
                   </MessageContent>
                 </Message>
