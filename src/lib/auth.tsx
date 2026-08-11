@@ -9,6 +9,12 @@ type Profile = {
   full_name: string;
   username: string;
   phone: string | null;
+  phone_code: string | null;
+  birth_date: string | null;
+  education_level: string | null;
+  occupation: string | null;
+  origin_country: string | null;
+  residence_country: string | null;
   status: string;
   notes: string | null;
 };
