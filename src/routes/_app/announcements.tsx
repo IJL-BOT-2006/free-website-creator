@@ -146,7 +146,7 @@ function AnnouncementsPage() {
             <button
               key={k}
               type="button"
-              onClick={() => setAudience(k)}
+              onClick={() => setAudience(k as string)}
               className={cn(
                 "rounded-full px-4 py-2 text-sm transition-colors",
                 audience === k
