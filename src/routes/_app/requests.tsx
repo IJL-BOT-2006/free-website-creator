@@ -1,19 +1,24 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Inbox, Plus, X } from "lucide-react";
+import { CalendarClock, Check, Inbox, Paperclip, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useCircles, useStaff, useStudents } from "@/lib/queries";
+import { openMedia, uploadMedia } from "@/lib/upload";
 import {
+  PRIORITY_LABELS,
+  PRIORITY_TONES,
   REQUEST_STATUS_LABELS,
   REQUEST_TYPE_LABELS,
+  formatDate,
   formatDateTime,
 } from "@/lib/constants";
-import { EmptyState, PageHeader, StatusPill } from "@/components/page-parts";
+import { EmptyState, PageHeader, StatCard, StatusPill } from "@/components/page-parts";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -24,18 +29,37 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/requests")({
   head: () => ({
     meta: [
       { title: "الطلبات — مقرأة حبل الله المتين" },
-      { name: "description", content: "الطلبات الإدارية: فصل طالبة، نقل معلمة، وطلبات أخرى." },
+      { name: "description", content: "الطلبات الإدارية: فصل طالبة، نقل معلمة، وطلبات أخرى مع الأولوية والمرفقات." },
       { property: "og:title", content: "الطلبات — مقرأة حبل الله المتين" },
       { property: "og:description", content: "الطلبات الإدارية ومتابعة قراراتها." },
     ],
   }),
   component: RequestsPage,
 });
+
+const emptyForm = {
+  request_type: "expel_student",
+  student_id: "",
+  teacher_id: "",
+  target_circle_id: "",
+  reason: "",
+  priority: "normal",
+  follow_up_date: "",
+  assignee_id: "",
+};
+
+const TABS = [
+  { key: "pending", label: "بانتظار المراجعة" },
+  { key: "approved", label: "تمت الموافقة" },
+  { key: "rejected", label: "تم الرفض" },
+  { key: "all", label: "الكل" },
+];
 
 function RequestsPage() {
   const { profile, isAdmin } = useAuth();
@@ -44,15 +68,11 @@ function RequestsPage() {
   const staff = useStaff();
   const circles = useCircles();
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState("pending");
+  const [file, setFile] = useState<File | null>(null);
   const [decide, setDecide] = useState<{ id: string; approve: boolean } | null>(null);
   const [decisionNotes, setDecisionNotes] = useState("");
-  const [form, setForm] = useState({
-    request_type: "expel_student",
-    student_id: "",
-    teacher_id: "",
-    target_circle_id: "",
-    reason: "",
-  });
+  const [form, setForm] = useState(emptyForm);
 
   const requests = useQuery({
     queryKey: ["requests"],
@@ -77,14 +97,30 @@ function RequestsPage() {
     };
   }, [students.data, staff.data, circles.data]);
 
+  const rows = useMemo(
+    () => (requests.data ?? []).filter((r) => tab === "all" || r.status === tab),
+    [requests.data, tab],
+  );
+
+  const counts = useMemo(() => {
+    const c: Record<string, number> = { pending: 0, approved: 0, rejected: 0 };
+    for (const r of requests.data ?? []) c[r.status] = (c[r.status] ?? 0) + 1;
+    return c;
+  }, [requests.data]);
+
   const create = useMutation({
     mutationFn: async () => {
       if (!form.reason.trim()) throw new Error("اكتبي سبب الطلب");
+      const attachment_url = file ? await uploadMedia(file, "requests") : null;
       const { error } = await supabase.from("requests").insert({
         request_type: form.request_type,
         student_id: form.student_id || null,
         teacher_id: form.teacher_id || null,
         target_circle_id: form.target_circle_id || null,
+        assignee_id: form.assignee_id || null,
+        follow_up_date: form.follow_up_date || null,
+        priority: form.priority,
+        attachment_url,
         reason: form.reason,
         created_by: profile!.id,
       });
@@ -93,7 +129,8 @@ function RequestsPage() {
     onSuccess: () => {
       toast.success("تم إرسال الطلب");
       setOpen(false);
-      setForm({ request_type: "expel_student", student_id: "", teacher_id: "", target_circle_id: "", reason: "" });
+      setForm(emptyForm);
+      setFile(null);
       qc.invalidateQueries({ queryKey: ["requests"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -145,14 +182,39 @@ function RequestsPage() {
         }
       />
 
-      {requests.data?.length ? (
+      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <StatCard label="بانتظار المراجعة" value={counts["pending"] ?? 0} icon={<Inbox className="size-5" />} tone="warning" />
+        <StatCard label="تمت الموافقة" value={counts["approved"] ?? 0} icon={<Check className="size-5" />} tone="success" />
+        <StatCard label="تم الرفض" value={counts["rejected"] ?? 0} icon={<X className="size-5" />} tone="danger" />
+      </div>
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => setTab(t.key)}
+            className={cn(
+              "rounded-full px-4 py-2 text-sm transition-colors",
+              tab === t.key
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-muted text-muted-foreground hover:bg-muted/70",
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {rows.length ? (
         <div className="space-y-3">
-          {requests.data.map((r) => (
-            <div key={r.id} className="card-panel p-5">
+          {rows.map((r) => (
+            <div key={r.id} className="card-panel p-5 transition-shadow hover:shadow-md">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold">
-                    #{r.request_no} · {REQUEST_TYPE_LABELS[r.request_type] ?? r.request_type}
+                    <span className="text-muted-foreground">#{r.request_no}</span>{" "}
+                    {REQUEST_TYPE_LABELS[r.request_type] ?? r.request_type}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {r.student_id ? `الطالبة: ${names.student(r.student_id)} · ` : ""}
@@ -161,22 +223,45 @@ function RequestsPage() {
                     {formatDateTime(r.created_at)}
                   </p>
                 </div>
-                <StatusPill
-                  label={REQUEST_STATUS_LABELS[r.status] ?? r.status}
-                  tone={
-                    r.status === "approved"
-                      ? "success"
-                      : r.status === "rejected"
-                        ? "danger"
-                        : r.status === "pending"
-                          ? "warning"
-                          : "default"
-                  }
-                />
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusPill
+                    label={PRIORITY_LABELS[r.priority] ?? r.priority}
+                    tone={PRIORITY_TONES[r.priority] ?? "default"}
+                  />
+                  <StatusPill
+                    label={REQUEST_STATUS_LABELS[r.status] ?? r.status}
+                    tone={
+                      r.status === "approved"
+                        ? "success"
+                        : r.status === "rejected"
+                          ? "danger"
+                          : r.status === "pending"
+                            ? "warning"
+                            : "default"
+                    }
+                  />
+                </div>
               </div>
-              <p className="mt-3 text-sm">{r.reason}</p>
+              <p className="mt-3 text-sm leading-7">{r.reason}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                {r.assignee_id && <span>المتابعة: {names.staff(r.assignee_id)}</span>}
+                {r.follow_up_date && (
+                  <span className="flex items-center gap-1">
+                    <CalendarClock className="size-3" /> متابعة في {formatDate(r.follow_up_date)}
+                  </span>
+                )}
+                {r.attachment_url && (
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-primary hover:underline"
+                    onClick={() => openMedia(r.attachment_url!)}
+                  >
+                    <Paperclip className="size-3" /> عرض المرفق
+                  </button>
+                )}
+              </div>
               {r.decision_notes && (
-                <p className="mt-2 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+                <p className="mt-3 rounded-xl bg-muted px-3 py-2 text-xs text-muted-foreground">
                   قرار الإدارة: {r.decision_notes}
                 </p>
               )}
@@ -263,9 +348,45 @@ function RequestsPage() {
                 </div>
               </>
             )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label>الأولوية</Label>
+                <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(PRIORITY_LABELS).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>تاريخ المتابعة</Label>
+                <Input
+                  type="date"
+                  value={form.follow_up_date}
+                  onChange={(e) => setForm({ ...form, follow_up_date: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>المسؤولة عن المتابعة (اختياري)</Label>
+              <Select value={form.assignee_id} onValueChange={(v) => setForm({ ...form, assignee_id: v })}>
+                <SelectTrigger><SelectValue placeholder="اختاري" /></SelectTrigger>
+                <SelectContent>
+                  {(staff.data ?? []).map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label>سبب الطلب</Label>
               <Textarea value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>مرفق (اختياري)</Label>
+              <Input type="file" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </div>
           </div>
           <DialogFooter>
