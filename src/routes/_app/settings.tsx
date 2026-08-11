@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_app/settings")({
 });
 
 function SettingsPage() {
-  const { profile, role, refresh } = useAuth();
+  const { profile, role } = useAuth();
   const changeFn = useServerFn(changeMyPassword);
   const [password, setPassword] = useState("");
   const [form, setForm] = useState({
@@ -78,9 +78,8 @@ function SettingsPage() {
         .eq("id", profile!.id);
       if (error) throw error;
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       toast.success("تم حفظ البيانات");
-      await refresh?.();
     },
     onError: (e: Error) => toast.error(e.message),
   });
