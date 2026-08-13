@@ -57,20 +57,26 @@ function LoginPage() {
   });
 
   return (
-    <main className="surface-hero flex min-h-screen items-center justify-center px-4 py-12">
-      <div className="absolute top-5 left-5">
+    <main className="surface-hero relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
+      <div aria-hidden className="pattern-arabesque pointer-events-none absolute inset-0 opacity-40" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 right-1/2 size-96 translate-x-1/2 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-sidebar-primary)_28%,transparent)_0%,transparent_70%)] blur-2xl"
+      />
+      <div className="absolute top-5 left-5 z-10">
         <ThemeToggle />
       </div>
-      <div className="w-full max-w-md">
+      <div className="page-enter relative z-10 w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-lift)]">
-            <BookOpenText className="size-7" />
-          </div>
-          <h1 className="text-2xl font-extrabold">مقرأة حبل الله المتين</h1>
-          <p className="mt-1 text-sm text-muted-foreground">نظام الإدارة الداخلي</p>
+          <Logo className="mx-auto mb-4 size-28" glow />
+          <h1 className="font-display text-3xl font-extrabold tracking-tight">
+            مقرأة حبل الله المتين
+          </h1>
+          <div className="gold-divider mx-auto mt-3 w-32" />
+          <p className="mt-3 text-sm text-muted-foreground">نظام الإدارة الداخلي</p>
         </div>
 
-        <div className="card-panel p-6">
+        <div className="glass-panel p-6 sm:p-7">
           {setupQuery.isLoading ? (
             <div className="flex items-center justify-center py-10 text-muted-foreground">
               <Loader2 className="size-5 animate-spin" />
@@ -89,6 +95,7 @@ function LoginPage() {
     </main>
   );
 }
+
 
 function SignInForm({
   accounts,
