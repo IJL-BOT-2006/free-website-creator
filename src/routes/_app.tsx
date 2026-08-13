@@ -95,8 +95,9 @@ function AppLayout() {
 
   if (loading || !session) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="size-6 animate-spin text-primary" />
+      <div className="surface-hero flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
+        <Logo className="size-20 animate-pulse" glow />
+        <Loader2 className="size-5 animate-spin text-primary" />
       </div>
     );
   }
@@ -107,12 +108,12 @@ function AppLayout() {
     <div className="min-h-screen bg-background">
       <aside
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-72 overflow-y-auto bg-sidebar px-4 py-6 text-sidebar-foreground transition-transform lg:translate-x-0",
+          "fixed inset-y-0 right-0 z-50 w-72 overflow-y-auto border-l border-sidebar-border bg-sidebar bg-[linear-gradient(190deg,color-mix(in_oklab,var(--color-sidebar-accent)_60%,var(--color-sidebar))_0%,var(--color-sidebar)_45%)] px-4 py-6 text-sidebar-foreground shadow-[var(--shadow-lift)] transition-transform duration-300 lg:translate-x-0",
           open ? "translate-x-0" : "translate-x-full lg:translate-x-0",
         )}
       >
-        <div className="mb-8 flex items-center gap-3 px-2">
-          <Logo className="size-11 shadow-sm ring-1 ring-sidebar-border" />
+        <div className="mb-6 flex items-center gap-3 px-2">
+          <Logo className="size-14 shrink-0" />
           <div className="leading-tight">
             <p className="font-display text-base font-bold">حبل الله المتين</p>
             <p className="text-xs text-sidebar-foreground/70">نظام إدارة المقرأة</p>
@@ -126,6 +127,7 @@ function AppLayout() {
             <X className="size-5" />
           </button>
         </div>
+        <div className="gold-divider mb-5" />
 
         <nav className="space-y-1">
           {items.map((item) => {
@@ -135,18 +137,31 @@ function AppLayout() {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
+                  "group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
                   active
-                    ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                    ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground shadow-sm"
+                    : "text-sidebar-foreground/75 hover:translate-x-[-2px] hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
                 )}
               >
-                <item.icon className="size-4.5 shrink-0" />
+                <span
+                  aria-hidden
+                  className={cn(
+                    "absolute inset-y-1.5 right-0 w-1 rounded-full bg-sidebar-primary transition-opacity",
+                    active ? "opacity-100" : "opacity-0",
+                  )}
+                />
+                <item.icon
+                  className={cn(
+                    "size-4.5 shrink-0 transition-colors",
+                    active ? "text-sidebar-primary" : "",
+                  )}
+                />
                 {item.label}
               </Link>
             );
           })}
         </nav>
+
 
         <button
           type="button"
@@ -169,7 +184,7 @@ function AppLayout() {
       )}
 
       <div className="lg:pr-72">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/80 px-4 py-3 shadow-[var(--shadow-soft)] backdrop-blur-xl lg:px-8">
           <button
             type="button"
             className="lg:hidden"
@@ -178,11 +193,11 @@ function AppLayout() {
           >
             <Menu className="size-5" />
           </button>
-          <Logo className="size-9 shrink-0 ring-1 ring-border" />
+          <Logo className="size-10 shrink-0" />
           <div className="flex items-center gap-2 text-sm">
             <ClipboardList className="hidden size-4 text-primary sm:block" />
             <span className="font-semibold">{profile?.full_name ?? "—"}</span>
-            <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+            <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground">
               {role ? ROLE_LABELS[role] : "بدون رتبة"}
             </span>
           </div>
@@ -190,10 +205,11 @@ function AppLayout() {
             <ThemeToggle />
           </div>
         </header>
-        <main className="px-4 py-6 lg:px-8 lg:py-8">
+        <main key={pathname} className="page-enter px-4 py-6 lg:px-8 lg:py-8">
           <Outlet />
         </main>
       </div>
+
     </div>
   );
 }

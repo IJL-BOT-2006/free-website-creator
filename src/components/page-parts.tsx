@@ -11,12 +11,19 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 className="text-2xl font-extrabold">{title}</h1>
-        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+    <div className="mb-7">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-[1.7rem]">
+            {title}
+          </h1>
+          {description && (
+            <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
+          )}
+        </div>
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      <div className="gold-divider mt-4" />
     </div>
   );
 }
@@ -35,26 +42,32 @@ export function StatCard({
   tone?: "default" | "success" | "warning" | "danger";
 }) {
   const tones = {
-    default: "text-primary bg-primary/10",
-    success: "text-success bg-success/10",
-    warning: "text-warning bg-warning/15",
-    danger: "text-destructive bg-destructive/10",
+    default: "text-primary bg-primary/10 ring-primary/15",
+    success: "text-success bg-success/10 ring-success/15",
+    warning: "text-warning bg-warning/15 ring-warning/20",
+    danger: "text-destructive bg-destructive/10 ring-destructive/15",
   } as const;
   return (
-    <div className="card-panel flex items-center gap-4 p-4">
+    <div className="card-elevated rise-in flex items-center gap-4 p-4 transition-transform duration-200 hover:-translate-y-0.5">
       {icon && (
-        <div className={cn("flex size-11 items-center justify-center rounded-xl", tones[tone])}>
+        <div
+          className={cn(
+            "flex size-12 shrink-0 items-center justify-center rounded-2xl ring-1",
+            tones[tone],
+          )}
+        >
           {icon}
         </div>
       )}
-      <div>
-        <p className="text-xs text-muted-foreground">{label}</p>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
         <p className="font-display text-2xl font-bold">{value}</p>
         {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
       </div>
     </div>
   );
 }
+
 
 export function EmptyState({ title, description }: { title: string; description?: string }) {
   return (
