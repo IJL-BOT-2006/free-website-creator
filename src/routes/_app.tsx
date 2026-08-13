@@ -184,7 +184,7 @@ function AppLayout() {
       )}
 
       <div className="lg:pr-72">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/80 px-4 py-3 shadow-[var(--shadow-soft)] backdrop-blur-xl lg:px-8">
           <button
             type="button"
             className="lg:hidden"
@@ -193,11 +193,11 @@ function AppLayout() {
           >
             <Menu className="size-5" />
           </button>
-          <Logo className="size-9 shrink-0 ring-1 ring-border" />
+          <Logo className="size-10 shrink-0" />
           <div className="flex items-center gap-2 text-sm">
             <ClipboardList className="hidden size-4 text-primary sm:block" />
             <span className="font-semibold">{profile?.full_name ?? "—"}</span>
-            <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+            <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground">
               {role ? ROLE_LABELS[role] : "بدون رتبة"}
             </span>
           </div>
@@ -205,10 +205,11 @@ function AppLayout() {
             <ThemeToggle />
           </div>
         </header>
-        <main className="px-4 py-6 lg:px-8 lg:py-8">
+        <main key={pathname} className="page-enter px-4 py-6 lg:px-8 lg:py-8">
           <Outlet />
         </main>
       </div>
+
     </div>
   );
 }
