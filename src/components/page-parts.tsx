@@ -11,8 +11,9 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-7">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="relative mb-7">
+      <div aria-hidden className="page-aura" />
+      <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-[1.7rem]">
             {title}
@@ -23,7 +24,7 @@ export function PageHeader({
         </div>
         {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
-      <div className="gold-divider mt-4" />
+      <div className="accent-divider relative z-10 mt-4" />
     </div>
   );
 }
@@ -42,17 +43,17 @@ export function StatCard({
   tone?: "default" | "success" | "warning" | "danger";
 }) {
   const tones = {
-    default: "text-primary bg-primary/10 ring-primary/15",
-    success: "text-success bg-success/10 ring-success/15",
-    warning: "text-warning bg-warning/15 ring-warning/20",
-    danger: "text-destructive bg-destructive/10 ring-destructive/15",
+    default: "accent-chip",
+    success: "text-success bg-success/10 ring-1 ring-success/15",
+    warning: "text-warning bg-warning/15 ring-1 ring-warning/20",
+    danger: "text-destructive bg-destructive/10 ring-1 ring-destructive/15",
   } as const;
   return (
-    <div className="card-elevated rise-in flex items-center gap-4 p-4 transition-transform duration-200 hover:-translate-y-0.5">
+    <div className="card-luxe rise-in relative flex items-center gap-4 overflow-hidden p-4 transition-transform duration-200 hover:-translate-y-0.5">
       {icon && (
         <div
           className={cn(
-            "flex size-12 shrink-0 items-center justify-center rounded-2xl ring-1",
+            "flex size-12 shrink-0 items-center justify-center rounded-2xl",
             tones[tone],
           )}
         >
@@ -67,6 +68,7 @@ export function StatCard({
     </div>
   );
 }
+
 
 
 export function EmptyState({ title, description }: { title: string; description?: string }) {
