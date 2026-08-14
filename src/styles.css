@@ -173,7 +173,9 @@
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
+  box-shadow:
+    0 1px 2px oklch(0.3 0.05 160 / 0.05),
+    0 18px 40px -26px oklch(0.3 0.05 160 / 0.34);
 }
 
 @utility card-elevated {
@@ -187,6 +189,7 @@
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-lift);
 }
+
 
 @utility gold-ring {
   border: 1px solid color-mix(in oklab, var(--color-sidebar-primary) 55%, transparent);
@@ -306,3 +309,58 @@
   background-size: 28px 28px, 28px 28px;
   background-position: 0 0, 14px 14px;
 }
+
+/* ---- per-page accent system ---- */
+:root {
+  --page-accent: var(--color-primary);
+  --shadow-luxe:
+    0 1px 2px oklch(0.3 0.05 160 / 0.06), 0 10px 24px -14px oklch(0.3 0.05 160 / 0.28),
+    0 36px 70px -40px oklch(0.3 0.05 160 / 0.42);
+}
+
+@utility page-aura {
+  position: absolute;
+  inset-block-start: -10rem;
+  inset-inline-end: -6rem;
+  z-index: 0;
+  width: 30rem;
+  height: 22rem;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(72px);
+  opacity: 0.5;
+  background-image: radial-gradient(
+    circle at 60% 40%,
+    color-mix(in oklab, var(--page-accent) 45%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+@utility accent-divider {
+  height: 2px;
+  border-radius: 9999px;
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--page-accent) 85%, transparent),
+    color-mix(in oklab, var(--color-sidebar-primary) 70%, transparent) 45%,
+    transparent
+  );
+}
+
+@utility accent-chip {
+  background-color: color-mix(in oklab, var(--page-accent) 14%, transparent);
+  color: var(--page-accent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--page-accent) 30%, transparent);
+}
+
+@utility card-luxe {
+  background-image: linear-gradient(
+    165deg,
+    var(--color-card) 0%,
+    color-mix(in oklab, var(--page-accent) 7%, var(--color-card)) 100%
+  );
+  border: 1px solid color-mix(in oklab, var(--page-accent) 18%, var(--color-border));
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-luxe);
+}
+

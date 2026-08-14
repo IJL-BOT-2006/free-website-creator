@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       announcements: {
         Row: {
+          archived: boolean
           audience: string
           content: string
           cover_url: string | null
@@ -29,6 +30,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived?: boolean
           audience?: string
           content: string
           cover_url?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived?: boolean
           audience?: string
           content?: string
           cover_url?: string | null
@@ -138,6 +141,7 @@ export type Database = {
       }
       circles: {
         Row: {
+          archived: boolean
           circle_type: string
           created_at: string
           days: string[]
@@ -150,6 +154,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived?: boolean
           circle_type?: string
           created_at?: string
           days?: string[]
@@ -162,6 +167,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived?: boolean
           circle_type?: string
           created_at?: string
           days?: string[]
@@ -296,6 +302,7 @@ export type Database = {
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
           username: string
+          username_display: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -313,6 +320,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           username: string
+          username_display?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -330,6 +338,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           username?: string
+          username_display?: string | null
         }
         Relationships: []
       }
@@ -454,6 +463,7 @@ export type Database = {
       }
       resources: {
         Row: {
+          archived: boolean
           audience: string
           category: string
           created_at: string
@@ -466,6 +476,7 @@ export type Database = {
           url: string | null
         }
         Insert: {
+          archived?: boolean
           audience?: string
           category?: string
           created_at?: string
@@ -478,6 +489,7 @@ export type Database = {
           url?: string | null
         }
         Update: {
+          archived?: boolean
           audience?: string
           category?: string
           created_at?: string

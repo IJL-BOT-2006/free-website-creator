@@ -70,7 +70,7 @@ function AssistantPage() {
   return (
     <div className="mx-auto flex h-[calc(100vh-11rem)] max-w-3xl flex-col">
       <PageHeader
-        title="المساعدة الذكية «نور»"
+        title="المساعد الذكي"
         description="اطلبي صياغة رسالة، تلخيص تقرير، أو اقتراح خطة متابعة."
       />
 
