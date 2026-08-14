@@ -1,4 +1,5 @@
-import logo from "@/assets/logo.png.asset.json";
+import logoPng from "@/assets/logo.png.asset.json";
+import logoJpg from "@/assets/logo.jpg.asset.json";
 import { cn } from "@/lib/utils";
 
 export function Logo({
@@ -14,8 +15,12 @@ export function Logo({
 }) {
   const img = (
     <img
-      src={logo.url}
+      src={logoPng.url}
       alt="شعار مقرأة حبل الله المتين"
+      onError={(e) => {
+        const el = e.currentTarget;
+        if (el.src !== logoJpg.url) el.src = logoJpg.url;
+      }}
       className={cn("size-full object-contain drop-shadow-sm", !framed && className)}
     />
   );

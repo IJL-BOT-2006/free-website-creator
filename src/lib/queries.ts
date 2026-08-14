@@ -12,16 +12,19 @@ export type StaffRow = {
   role: AppRole | null;
 };
 
-export function useCircles() {
+export function useCircles(includeArchived = false) {
   return useQuery({
-    queryKey: ["circles"],
+    queryKey: ["circles", includeArchived],
     queryFn: async () => {
-      const { data, error } = await supabase.from("circles").select("*").order("name");
+      let q = supabase.from("circles").select("*").order("name");
+      if (!includeArchived) q = q.eq("archived", false);
+      const { data, error } = await q;
       if (error) throw error;
       return data;
     },
   });
 }
+
 
 export function useStaff() {
   return useQuery({
