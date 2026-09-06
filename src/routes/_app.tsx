@@ -130,7 +130,11 @@ function AppLayout() {
   const items = NAV.filter((item) => !item.roles || (role && item.roles.includes(role)));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-background"
+      style={{ "--page-accent": accentFor(pathname) } as React.CSSProperties}
+    >
+
       <aside
         className={cn(
           "fixed inset-y-0 right-0 z-50 w-72 overflow-y-auto border-l border-sidebar-border bg-sidebar bg-[linear-gradient(190deg,color-mix(in_oklab,var(--color-sidebar-accent)_60%,var(--color-sidebar))_0%,var(--color-sidebar)_45%)] px-4 py-6 text-sidebar-foreground shadow-[var(--shadow-lift)] transition-transform duration-300 lg:translate-x-0",
