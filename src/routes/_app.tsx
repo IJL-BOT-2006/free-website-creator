@@ -132,7 +132,7 @@ function AppLayout() {
   return (
     <div
       className="min-h-screen bg-background"
-      style={{ "--page-accent": accentFor(pathname) } as React.CSSProperties}
+      style={{ "--page-accent": accentFor(pathname) } as CSSProperties}
     >
 
       <aside
