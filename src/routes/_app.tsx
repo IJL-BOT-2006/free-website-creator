@@ -55,6 +55,31 @@ const NAV: NavItem[] = [
   { to: "/settings", label: "حسابي", icon: Settings },
 ];
 
+/** لمسة لون مميزة لكل صفحة، مبنية على نفس نظام OKLCH للهوية */
+const PAGE_ACCENT: Record<string, string> = {
+  "/dashboard": "oklch(0.45 0.1 160)",
+  "/circles": "oklch(0.5 0.11 190)",
+  "/students": "oklch(0.55 0.12 300)",
+  "/attendance": "oklch(0.58 0.11 230)",
+  "/reports": "oklch(0.62 0.13 85)",
+  "/teachers": "oklch(0.52 0.12 20)",
+  "/requests": "oklch(0.55 0.12 265)",
+  "/tasks": "oklch(0.55 0.13 135)",
+  "/announcements": "oklch(0.62 0.14 55)",
+  "/resources": "oklch(0.5 0.09 210)",
+  "/assistant": "oklch(0.56 0.13 320)",
+  "/logs": "oklch(0.48 0.05 175)",
+  "/settings": "oklch(0.5 0.08 160)",
+};
+
+function accentFor(pathname: string) {
+  const key = Object.keys(PAGE_ACCENT).find(
+    (k) => pathname === k || pathname.startsWith(`${k}/`),
+  );
+  return key ? PAGE_ACCENT[key] : "var(--color-primary)";
+}
+
+
 function AppLayout() {
   const { session, loading, profile, role, signOut } = useAuth();
   const navigate = useNavigate();
