@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Link, Outlet, createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   BellRing,
@@ -55,6 +55,31 @@ const NAV: NavItem[] = [
   { to: "/settings", label: "حسابي", icon: Settings },
 ];
 
+/** لمسة لون مميزة لكل صفحة، مبنية على نفس نظام OKLCH للهوية */
+const PAGE_ACCENT: Record<string, string> = {
+  "/dashboard": "oklch(0.45 0.1 160)",
+  "/circles": "oklch(0.5 0.11 190)",
+  "/students": "oklch(0.55 0.12 300)",
+  "/attendance": "oklch(0.58 0.11 230)",
+  "/reports": "oklch(0.62 0.13 85)",
+  "/teachers": "oklch(0.52 0.12 20)",
+  "/requests": "oklch(0.55 0.12 265)",
+  "/tasks": "oklch(0.55 0.13 135)",
+  "/announcements": "oklch(0.62 0.14 55)",
+  "/resources": "oklch(0.5 0.09 210)",
+  "/assistant": "oklch(0.56 0.13 320)",
+  "/logs": "oklch(0.48 0.05 175)",
+  "/settings": "oklch(0.5 0.08 160)",
+};
+
+function accentFor(pathname: string) {
+  const key = Object.keys(PAGE_ACCENT).find(
+    (k) => pathname === k || pathname.startsWith(`${k}/`),
+  );
+  return key ? PAGE_ACCENT[key] : "var(--color-primary)";
+}
+
+
 function AppLayout() {
   const { session, loading, profile, role, signOut } = useAuth();
   const navigate = useNavigate();
@@ -105,7 +130,11 @@ function AppLayout() {
   const items = NAV.filter((item) => !item.roles || (role && item.roles.includes(role)));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-background"
+      style={{ "--page-accent": accentFor(pathname) } as CSSProperties}
+    >
+
       <aside
         className={cn(
           "fixed inset-y-0 right-0 z-50 w-72 overflow-y-auto border-l border-sidebar-border bg-sidebar bg-[linear-gradient(190deg,color-mix(in_oklab,var(--color-sidebar-accent)_60%,var(--color-sidebar))_0%,var(--color-sidebar)_45%)] px-4 py-6 text-sidebar-foreground shadow-[var(--shadow-lift)] transition-transform duration-300 lg:translate-x-0",
