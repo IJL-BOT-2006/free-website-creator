@@ -14,6 +14,22 @@ export function normalizeUsername(username: string) {
     .replace(/[^a-z0-9._-]/g, "");
 }
 
+/** يولّد معرّف دخول تقني فريد خلف الكواليس (لا تراه الإدارة) */
+async function generateTechnicalUsername(preferred: string) {
+  const base = normalizeUsername(preferred) || "user";
+  for (let i = 0; i < 12; i += 1) {
+    const candidate = i === 0 ? base : `${base}${Math.floor(1000 + Math.random() * 9000)}`;
+    const { data } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("username", candidate)
+      .maybeSingle();
+    if (!data) return candidate;
+  }
+  return `user${Date.now()}`;
+}
+
+
 export async function countStaff() {
   const { count, error } = await supabaseAdmin
     .from("profiles")
@@ -47,12 +63,21 @@ export async function createStaff(input: {
   username: string;
   password: string;
   phone?: string;
+  phoneCode?: string;
   role: AppRole;
   notes?: string;
+  birthDate?: string;
+  educationLevel?: string;
+  occupation?: string;
+  originCountry?: string;
+  residenceCountry?: string;
 }) {
-  const username = normalizeUsername(input.username);
-  if (!username) throw new Error("اسم الدخول غير صالح، استخدمي حروفًا إنجليزية أو أرقامًا");
+  const display = input.username.trim() || input.fullName.trim();
+  if (!display) throw new Error("اسم الدخول مطلوب");
   if (input.password.length < 6) throw new Error("كلمة المرور يجب ألا تقل عن ٦ أحرف");
+
+  // معرّف تقني مخفي تمامًا عن الإدارة، الاسم العربي يُحفظ للعرض
+  const username = await generateTechnicalUsername(display);
 
   const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
     email: toEmail(username),
@@ -73,7 +98,14 @@ export async function createStaff(input: {
     id: userId,
     full_name: input.fullName,
     username,
+    username_display: display,
     phone: input.phone ?? null,
+    phone_code: input.phoneCode ?? null,
+    birth_date: input.birthDate || null,
+    education_level: input.educationLevel || null,
+    occupation: input.occupation || null,
+    origin_country: input.originCountry || null,
+    residence_country: input.residenceCountry || null,
     notes: input.notes ?? null,
   });
   if (profileError) {
@@ -86,8 +118,9 @@ export async function createStaff(input: {
     .insert({ user_id: userId, role: input.role });
   if (roleError) throw new Error(roleError.message);
 
-  return { id: userId, username };
+  return { id: userId, username, display };
 }
+
 
 export async function setPassword(userId: string, password: string) {
   if (password.length < 6) throw new Error("كلمة المرور يجب ألا تقل عن ٦ أحرف");
@@ -118,9 +151,14 @@ export async function logAction(
 export async function listDirectory() {
   const { data, error } = await supabaseAdmin
     .from("profiles")
-    .select("full_name, username, status")
+    .select("full_name, username, username_display, status")
     .eq("status", "active")
     .order("full_name");
   if (error) throw new Error(error.message);
-  return (data ?? []).map((p) => ({ full_name: p.full_name, username: p.username }));
+  return (data ?? []).map((p) => ({
+    full_name: p.full_name,
+    username: p.username,
+    username_display: p.username_display ?? p.full_name,
+  }));
 }
+

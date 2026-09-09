@@ -6,11 +6,13 @@ export type StaffRow = {
   id: string;
   full_name: string;
   username: string;
+  username_display: string | null;
   phone: string | null;
   status: string;
   notes: string | null;
   role: AppRole | null;
 };
+
 
 export function useCircles(includeArchived = false) {
   return useQuery({

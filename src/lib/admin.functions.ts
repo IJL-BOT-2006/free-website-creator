@@ -27,10 +27,17 @@ export const createAccount = createServerFn({ method: "POST" })
       username: string;
       password: string;
       phone?: string;
+      phoneCode?: string;
       role: AppRole;
       notes?: string;
+      birthDate?: string;
+      educationLevel?: string;
+      occupation?: string;
+      originCountry?: string;
+      residenceCountry?: string;
     }) => data,
   )
+
   .handler(async ({ data, context }) => {
     const { assertAdmin, createStaff, logAction } = await import("./admin.server");
     await assertAdmin(context.userId);
