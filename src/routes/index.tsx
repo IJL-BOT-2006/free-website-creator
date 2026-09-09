@@ -204,15 +204,16 @@ function SetupForm({ onDone }: { onDone: () => void }) {
         <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="user">اسم الدخول (إنجليزي)</Label>
+        <Label htmlFor="user">اسم الدخول (بالعربية)</Label>
         <Input
           id="user"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="manager"
+          placeholder="مثال: المديرة"
           required
         />
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="pass">كلمة المرور</Label>
         <Input

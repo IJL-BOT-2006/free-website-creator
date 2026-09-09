@@ -9,8 +9,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useStaff } from "@/lib/queries";
 import { changeAccountRole, createAccount, resetAccountPassword } from "@/lib/admin.functions";
-import { ACCOUNT_STATUS_LABELS, ROLE_LABELS, ROLE_ORDER, type AppRole } from "@/lib/constants";
+import {
+  ACCOUNT_STATUS_LABELS,
+  EDUCATION_LEVELS,
+  ROLE_LABELS,
+  ROLE_ORDER,
+  type AppRole,
+} from "@/lib/constants";
+import { CountrySelect, PhoneInput } from "@/components/phone-input";
 import { EmptyState, PageHeader, StatusPill } from "@/components/page-parts";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,17 +59,40 @@ function TeachersPage() {
     fullName: "",
     username: "",
     password: "",
+    phoneCode: "+966",
     phone: "",
+    birthDate: "",
+    educationLevel: "",
+    occupation: "",
+    originCountry: "",
+    residenceCountry: "",
     role: "teacher" as AppRole,
     notes: "",
   });
 
+  const emptyForm = {
+    fullName: "",
+    username: "",
+    password: "",
+    phoneCode: "+966",
+    phone: "",
+    birthDate: "",
+    educationLevel: "",
+    occupation: "",
+    originCountry: "",
+    residenceCountry: "",
+    role: "teacher" as AppRole,
+    notes: "",
+  };
+
   const create = useMutation({
-    mutationFn: async () => createFn({ data: form }),
+    mutationFn: async () =>
+      createFn({ data: { ...form, phone: form.phone ? `${form.phoneCode}${form.phone}` : "" } }),
     onSuccess: () => {
       toast.success("تم إنشاء الحساب");
       setOpen(false);
-      setForm({ fullName: "", username: "", password: "", phone: "", role: "teacher", notes: "" });
+      setForm(emptyForm);
+
       qc.invalidateQueries({ queryKey: ["staff"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -117,7 +148,7 @@ function TeachersPage() {
 
       {staff.data?.length ? (
         <div className="card-panel overflow-x-auto">
-          <table className="w-full text-right text-sm">
+          <table className="table-elegant w-full text-right text-sm">
             <thead className="bg-muted/60 text-xs text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 font-medium">الاسم</th>
@@ -134,7 +165,10 @@ function TeachersPage() {
                     <p className="font-medium">{s.full_name}</p>
                     <p className="text-xs text-muted-foreground">{s.phone ?? "—"}</p>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{s.username}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {s.username_display ?? s.full_name}
+                  </td>
+
                   <td className="px-4 py-3">
                     {isManager ? (
                       <Select
@@ -201,8 +235,12 @@ function TeachersPage() {
               <Input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>اسم الدخول (إنجليزي)</Label>
-              <Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
+              <Label>اسم الدخول (بالعربية)</Label>
+              <Input
+                value={form.username}
+                placeholder="مثال: أم عبدالله"
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label>كلمة المرور</Label>
@@ -212,10 +250,59 @@ function TeachersPage() {
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 sm:col-span-2">
               <Label>الجوال</Label>
-              <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              <PhoneInput
+                code={form.phoneCode}
+                phone={form.phone}
+                onCode={(v) => setForm({ ...form, phoneCode: v })}
+                onPhone={(v) => setForm({ ...form, phone: v })}
+              />
             </div>
+            <div className="space-y-2">
+              <Label>تاريخ الميلاد</Label>
+              <Input
+                type="date"
+                value={form.birthDate}
+                onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>المستوى التعليمي</Label>
+              <Select
+                value={form.educationLevel}
+                onValueChange={(v) => setForm({ ...form, educationLevel: v })}
+              >
+                <SelectTrigger><SelectValue placeholder="اختاري المستوى" /></SelectTrigger>
+                <SelectContent>
+                  {EDUCATION_LEVELS.map((l) => (
+                    <SelectItem key={l} value={l}>{l}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>المهنة</Label>
+              <Input
+                value={form.occupation}
+                onChange={(e) => setForm({ ...form, occupation: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>الدولة الأصلية</Label>
+              <CountrySelect
+                value={form.originCountry}
+                onChange={(v) => setForm({ ...form, originCountry: v })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>دولة الإقامة</Label>
+              <CountrySelect
+                value={form.residenceCountry}
+                onChange={(v) => setForm({ ...form, residenceCountry: v })}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label>الرتبة</Label>
               <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as AppRole })}>
