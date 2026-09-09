@@ -151,9 +151,14 @@ export async function logAction(
 export async function listDirectory() {
   const { data, error } = await supabaseAdmin
     .from("profiles")
-    .select("full_name, username, status")
+    .select("full_name, username, username_display, status")
     .eq("status", "active")
     .order("full_name");
   if (error) throw new Error(error.message);
-  return (data ?? []).map((p) => ({ full_name: p.full_name, username: p.username }));
+  return (data ?? []).map((p) => ({
+    full_name: p.full_name,
+    username: p.username,
+    username_display: p.username_display ?? p.full_name,
+  }));
 }
+
