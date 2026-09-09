@@ -14,6 +14,22 @@ export function normalizeUsername(username: string) {
     .replace(/[^a-z0-9._-]/g, "");
 }
 
+/** يولّد معرّف دخول تقني فريد خلف الكواليس (لا تراه الإدارة) */
+async function generateTechnicalUsername(preferred: string) {
+  const base = normalizeUsername(preferred) || "user";
+  for (let i = 0; i < 12; i += 1) {
+    const candidate = i === 0 ? base : `${base}${Math.floor(1000 + Math.random() * 9000)}`;
+    const { data } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("username", candidate)
+      .maybeSingle();
+    if (!data) return candidate;
+  }
+  return `user${Date.now()}`;
+}
+
+
 export async function countStaff() {
   const { count, error } = await supabaseAdmin
     .from("profiles")
