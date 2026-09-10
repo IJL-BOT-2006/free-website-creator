@@ -36,6 +36,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "بوابة الدخول لنظام إدارة مقرأة حبل الله المتين.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: LoginPage,
@@ -71,7 +73,7 @@ function LoginPage() {
       <div className="page-enter relative z-10 w-full max-w-md">
         <div className="mb-8 text-center">
           <Logo className="mx-auto mb-4 size-28" glow />
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
+          <h1 className="font-thuluth text-4xl font-bold leading-relaxed text-gradient-gold sm:text-5xl">
             مقرأة حبل الله المتين
           </h1>
           <div className="gold-divider mx-auto mt-3 w-32" />
@@ -103,7 +105,7 @@ function SignInForm({
   accounts,
   loadingAccounts,
 }: {
-  accounts: { full_name: string; username: string }[];
+  accounts: { full_name: string; username: string; username_display?: string | null }[];
   loadingAccounts: boolean;
 }) {
   const navigate = useNavigate();
@@ -144,7 +146,7 @@ function SignInForm({
           <SelectContent>
             {accounts.map((a) => (
               <SelectItem key={a.username} value={a.username}>
-                {a.full_name}
+                {a.username_display ?? a.full_name}
               </SelectItem>
             ))}
           </SelectContent>
