@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, FileText, Folder, FolderOpen, Link2, Plus, Trash2 } from "lucide-react";
+import { Archive, ArchiveRestore, Download, FileText, Folder, FolderOpen, Grid2X2, Link2, List, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -51,13 +51,16 @@ function ResourcesPage() {
   const [form, setForm] = useState(emptyForm);
   const [file, setFile] = useState<File | null>(null);
   const [folder, setFolder] = useState<string | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const [view, setView] = useState<"cards" | "table">("cards");
 
   const list = useQuery({
-    queryKey: ["resources"],
+    queryKey: ["resources", showArchived],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("resources")
         .select("*")
+        .eq("archived", showArchived)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -105,13 +108,13 @@ function ResourcesPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("resources").delete().eq("id", id);
+  const setArchived = useMutation({
+    mutationFn: async (v: { id: string; archived: boolean }) => {
+      const { error } = await supabase.from("resources").update({ archived: v.archived }).eq("id", v.id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      toast.success("تم الحذف");
+    onSuccess: (_, v) => {
+      toast.success(v.archived ? "تمت الأرشفة" : "تمت الاستعادة");
       qc.invalidateQueries({ queryKey: ["resources"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -130,6 +133,18 @@ function ResourcesPage() {
           )
         }
       />
+
+      <div className="mb-4 flex items-center justify-end gap-2">
+        <Button variant="outline" size="icon" onClick={() => setView(view === "cards" ? "table" : "cards")} title={view === "cards" ? "عرض جدولي" : "عرض بطاقات"}>
+          {view === "cards" ? <List className="size-4" /> : <Grid2X2 className="size-4" />}
+        </Button>
+        {isAdmin && (
+          <Button variant={showArchived ? "secondary" : "outline"} onClick={() => setShowArchived((value) => !value)}>
+            {showArchived ? <ArchiveRestore className="size-4" /> : <Archive className="size-4" />}
+            {showArchived ? "عرض النشطة" : "عرض المؤرشف"}
+          </Button>
+        )}
+      </div>
 
       <div className="mb-6 grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
         <button
@@ -169,7 +184,23 @@ function ResourcesPage() {
         ))}
       </div>
 
-      {rows.length ? (
+      {rows.length && view === "table" ? (
+        <div className="card-panel overflow-x-auto">
+          <table className="table-elegant">
+            <thead><tr><th>الاسم</th><th>المجلد</th><th>التصنيف</th><th>الفئة</th><th>الإجراء</th></tr></thead>
+            <tbody>{rows.map((r) => (
+              <tr key={r.id}>
+                <td className="font-medium">{r.name}</td><td>{r.folder ?? "ملفات عامة"}</td><td>{r.category}</td>
+                <td>{AUDIENCE_LABELS[r.audience] ?? r.audience}</td>
+                <td><div className="flex gap-1">
+                  {r.file_url && <Button size="sm" variant="ghost" onClick={() => openMedia(r.file_url!)}><Download className="size-3.5" /> فتح</Button>}
+                  {isAdmin && <Button size="sm" variant="ghost" onClick={() => setArchived.mutate({ id: r.id, archived: !showArchived })}>{showArchived ? <ArchiveRestore className="size-3.5" /> : <Archive className="size-3.5" />}{showArchived ? "استعادة" : "أرشفة"}</Button>}
+                </div></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      ) : rows.length ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {rows.map((r) => (
             <div key={r.id} className="card-panel p-5 transition-shadow hover:shadow-md">
@@ -200,8 +231,9 @@ function ResourcesPage() {
                   </a>
                 )}
                 {isAdmin && (
-                  <Button size="sm" variant="ghost" className="mr-auto" onClick={() => remove.mutate(r.id)}>
-                    <Trash2 className="size-3.5 text-destructive" />
+                  <Button size="sm" variant="ghost" className="mr-auto" onClick={() => setArchived.mutate({ id: r.id, archived: !showArchived })}>
+                    {showArchived ? <ArchiveRestore className="size-3.5" /> : <Archive className="size-3.5" />}
+                    {showArchived ? "استعادة" : "أرشفة"}
                   </Button>
                 )}
               </div>

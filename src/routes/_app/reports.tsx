@@ -47,6 +47,7 @@ function ReportsPage() {
     report_date: new Date().toISOString().slice(0, 10),
     curriculum: "",
     amount: "",
+    revision: "",
     evaluation: "ممتاز",
     notes: "",
   });
@@ -81,6 +82,7 @@ function ReportsPage() {
         report_date: form.report_date,
         curriculum: form.curriculum || null,
         amount: form.amount || null,
+        revision: form.revision || null,
         evaluation: form.evaluation,
         notes: form.notes || null,
       });
@@ -139,13 +141,14 @@ function ReportsPage() {
 
       {rows.length ? (
         <div className="card-panel overflow-x-auto">
-          <table className="w-full text-right text-sm">
+          <table className="table-elegant">
             <thead className="bg-muted/60 text-xs text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 font-medium">الطالبة</th>
                 <th className="px-4 py-3 font-medium">الحلقة</th>
                 <th className="px-4 py-3 font-medium">التاريخ</th>
                 <th className="px-4 py-3 font-medium">المقرر</th>
+                <th className="px-4 py-3 font-medium">المراجعة</th>
                 <th className="px-4 py-3 font-medium">التقييم</th>
                 <th className="px-4 py-3 font-medium">الاعتماد</th>
               </tr>
@@ -160,6 +163,7 @@ function ReportsPage() {
                     {r.curriculum ?? "—"}
                     {r.amount ? ` · ${r.amount}` : ""}
                   </td>
+                  <td className="px-4 py-3">{r.revision ?? "—"}</td>
                   <td className="px-4 py-3">{r.evaluation ?? "—"}</td>
                   <td className="px-4 py-3">
                     {r.approved ? (
@@ -232,6 +236,14 @@ function ReportsPage() {
                   value={form.amount}
                   placeholder="من آية ١ إلى ١٠"
                   onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>المراجعة</Label>
+                <Input
+                  value={form.revision}
+                  placeholder="مثال: مراجعة الجزء السابق"
+                  onChange={(e) => setForm({ ...form, revision: e.target.value })}
                 />
               </div>
             </div>

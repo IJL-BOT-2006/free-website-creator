@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BellRing, Pin, PinOff, Plus, Trash2 } from "lucide-react";
+import { Archive, ArchiveRestore, BellRing, Pin, PinOff, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -60,13 +60,15 @@ function AnnouncementsPage() {
   const [form, setForm] = useState(emptyForm);
   const [cover, setCover] = useState<File | null>(null);
   const [audience, setAudience] = useState("all");
+  const [showArchived, setShowArchived] = useState(false);
 
   const list = useQuery({
-    queryKey: ["announcements"],
+    queryKey: ["announcements", showArchived],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("announcements")
         .select("*")
+        .eq("archived", showArchived)
         .order("pinned", { ascending: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -114,13 +116,13 @@ function AnnouncementsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("announcements").delete().eq("id", id);
+  const setArchived = useMutation({
+    mutationFn: async (v: { id: string; archived: boolean }) => {
+      const { error } = await supabase.from("announcements").update({ archived: v.archived }).eq("id", v.id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      toast.success("تم حذف الإعلان");
+    onSuccess: (_, v) => {
+      toast.success(v.archived ? "تمت أرشفة الإعلان" : "تمت استعادة الإعلان");
       qc.invalidateQueries({ queryKey: ["announcements"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -140,7 +142,7 @@ function AnnouncementsPage() {
         }
       />
 
-      <div className="mb-6 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap items-center gap-2">
         {[["all", "الجميع"], ...Object.entries(AUDIENCE_LABELS).filter(([k]) => k !== "all")].map(
           ([k, v]) => (
             <button
@@ -157,6 +159,17 @@ function AnnouncementsPage() {
               {v}
             </button>
           ),
+        )}
+        {isAdmin && (
+          <Button
+            variant={showArchived ? "secondary" : "outline"}
+            size="sm"
+            className="mr-auto"
+            onClick={() => setShowArchived((value) => !value)}
+          >
+            {showArchived ? <ArchiveRestore className="size-4" /> : <Archive className="size-4" />}
+            {showArchived ? "عرض النشطة" : "عرض المؤرشف"}
+          </Button>
         )}
       </div>
 
@@ -196,8 +209,13 @@ function AnnouncementsPage() {
                         {a.pinned ? <PinOff className="size-3.5" /> : <Pin className="size-3.5" />}
                         {a.pinned ? "إلغاء التثبيت" : "تثبيت"}
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => remove.mutate(a.id)}>
-                        <Trash2 className="size-3.5 text-destructive" /> حذف
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setArchived.mutate({ id: a.id, archived: !showArchived })}
+                      >
+                        {showArchived ? <ArchiveRestore className="size-3.5" /> : <Archive className="size-3.5" />}
+                        {showArchived ? "استعادة" : "أرشفة"}
                       </Button>
                     </div>
                   )}
