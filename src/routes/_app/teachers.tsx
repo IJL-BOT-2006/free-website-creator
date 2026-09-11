@@ -7,7 +7,8 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { useStaff } from "@/lib/queries";
+import { useStaff, useTeacherAttendanceRates } from "@/lib/queries";
+import { RateBadge } from "@/components/mini-charts";
 import { changeAccountRole, createAccount, resetAccountPassword } from "@/lib/admin.functions";
 import {
   ACCOUNT_STATUS_LABELS,
@@ -48,6 +49,7 @@ function TeachersPage() {
   const { isAdmin, isManager } = useAuth();
   const qc = useQueryClient();
   const staff = useStaff();
+  const rates = useTeacherAttendanceRates();
   const createFn = useServerFn(createAccount);
   const resetFn = useServerFn(resetAccountPassword);
   const roleFn = useServerFn(changeAccountRole);
@@ -153,6 +155,7 @@ function TeachersPage() {
               <tr>
                 <th className="px-4 py-3 font-medium">الاسم</th>
                 <th className="px-4 py-3 font-medium">اسم الدخول</th>
+                <th className="px-4 py-3 font-medium">نسبة الحضور</th>
                 <th className="px-4 py-3 font-medium">الرتبة</th>
                 <th className="px-4 py-3 font-medium">الحالة</th>
                 <th className="px-4 py-3" />
@@ -168,7 +171,18 @@ function TeachersPage() {
                   <td className="px-4 py-3 text-muted-foreground">
                     {s.username_display ?? s.full_name}
                   </td>
-
+                  <td className="px-4 py-3">
+                    {rates.data?.[s.id] ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                        <RateBadge value={rates.data[s.id]!.rate} />
+                        <span>
+                          ({rates.data[s.id]!.present}/{rates.data[s.id]!.total})
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     {isManager ? (
                       <Select

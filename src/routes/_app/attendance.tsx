@@ -19,7 +19,14 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { useCircles, useStaff, useStudents } from "@/lib/queries";
+import {
+  useCircles,
+  useStaff,
+  useStudentAttendanceRates,
+  useStudents,
+  useTeacherAttendanceRates,
+} from "@/lib/queries";
+import { RateBadge } from "@/components/mini-charts";
 import { ATTENDANCE_LABELS } from "@/lib/constants";
 import { EmptyState, PageHeader, StatCard } from "@/components/page-parts";
 import { Button } from "@/components/ui/button";
@@ -71,6 +78,9 @@ function AttendancePage() {
   const [marks, setMarks] = useState<Record<string, Status>>({});
   const [teacherMarks, setTeacherMarks] = useState<Record<string, Status>>({});
   const [makeup, setMakeup] = useState("");
+  const [month, setMonth] = useState(todayISO().slice(0, 7));
+  const studentRates = useStudentAttendanceRates(month);
+  const teacherRates = useTeacherAttendanceRates(month);
 
   useEffect(() => {
     if (!circleId && circles.data?.length) setCircleId(circles.data[0]!.id);
@@ -114,15 +124,15 @@ function AttendancePage() {
   }, [existing.data, profile?.id]);
 
   const history = useQuery({
-    queryKey: ["attendance-history", circleId],
+    queryKey: ["attendance-history", circleId, month],
     enabled: !!circleId,
     queryFn: async () => {
-      const since = new Date(Date.now() - 29 * 86400000).toISOString().slice(0, 10);
       const { data, error } = await supabase
         .from("student_attendance")
         .select("session_date, status")
         .eq("circle_id", circleId)
-        .gte("session_date", since)
+        .gte("session_date", `${month}-01`)
+        .lte("session_date", `${month}-31`)
         .order("session_date");
       if (error) throw error;
       return data;
@@ -219,7 +229,7 @@ function AttendancePage() {
 
       <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="نسبة الحضور (٣٠ يومًا)"
+          label="نسبة الحضور (الشهر المحدد)"
           value={totalAll ? `${Math.round((totals.present / totalAll) * 100)}%` : "—"}
           tone="success"
         />
@@ -250,6 +260,15 @@ function AttendancePage() {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            className="w-44"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>الشهر</Label>
+          <Input
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value || todayISO().slice(0, 7))}
             className="w-44"
           />
         </div>
@@ -310,6 +329,7 @@ function AttendancePage() {
               name={s.full_name}
               value={marks[s.id]}
               disabled={!canRecord}
+              rate={studentRates.data?.[s.id]}
               onChange={(v) => setMarks({ ...marks, [s.id]: v })}
             />
           ))}
@@ -332,6 +352,7 @@ function AttendancePage() {
                 key={t.id}
                 name={t.full_name}
                 value={teacherMarks[t.id]}
+                rate={teacherRates.data?.[t.id]}
                 disabled={!(isAdmin || isSupervisor || t.id === profile?.id)}
                 onChange={(v) => setTeacherMarks({ ...teacherMarks, [t.id]: v })}
               />
@@ -419,15 +440,27 @@ function Row({
   value,
   onChange,
   disabled,
+  rate,
 }: {
   name: string;
   value?: Status | undefined;
   onChange: (v: Status) => void;
   disabled?: boolean | undefined;
+  rate?: { present: number; total: number; rate: number } | undefined;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-      <span className="text-sm font-medium">{name}</span>
+      <span className="flex items-center gap-2 text-sm font-medium">
+        {name}
+        {rate ? (
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <RateBadge value={rate.rate} />
+            <span>
+              ({rate.present}/{rate.total})
+            </span>
+          </span>
+        ) : null}
+      </span>
       <StatusButtons value={value} onChange={onChange} disabled={disabled} />
     </div>
   );
