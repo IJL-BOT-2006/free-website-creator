@@ -6,7 +6,8 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { useCircles, useStudents } from "@/lib/queries";
+import { useCircles, useStudentAttendanceRates, useStudents } from "@/lib/queries";
+import { RateBadge } from "@/components/mini-charts";
 import {
   EDUCATION_LEVELS,
   STUDENT_STATUS_LABELS,
@@ -84,6 +85,7 @@ function StudentsPage() {
   const qc = useQueryClient();
   const students = useStudents();
   const circles = useCircles();
+  const rates = useStudentAttendanceRates();
   const [q, setQ] = useState("");
   const [circleFilter, setCircleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
