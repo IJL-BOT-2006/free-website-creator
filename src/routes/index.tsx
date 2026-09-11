@@ -73,7 +73,7 @@ function LoginPage() {
       </div>
       <div className="page-enter relative z-10 w-full max-w-md">
         <div className="mb-8 text-center">
-          <Logo className="mx-auto mb-4 size-28" glow />
+          <Logo className="mx-auto mb-4 size-44" glow />
           <h1 className="sr-only">مقرأة حبل الله المتين</h1>
           <img
             src={wordmark.url}
