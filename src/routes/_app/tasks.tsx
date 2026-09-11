@@ -87,6 +87,8 @@ function TasksPage() {
   const [file, setFile] = useState<File | null>(null);
   const [filterAssignee, setFilterAssignee] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
+  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [selectedDay, setSelectedDay] = useState("");
 
   const tasks = useQuery({
     queryKey: ["tasks"],
@@ -109,9 +111,10 @@ function TasksPage() {
     return (tasks.data ?? []).filter(
       (t) =>
         (filterAssignee === "all" || t.assignee_id === filterAssignee) &&
-        (filterPriority === "all" || t.priority === filterPriority),
+        (filterPriority === "all" || t.priority === filterPriority) &&
+        (!selectedDay || t.due_date === selectedDay),
     );
-  }, [tasks.data, filterAssignee, filterPriority]);
+  }, [tasks.data, filterAssignee, filterPriority, selectedDay]);
 
   const create = useMutation({
     mutationFn: async () => {
@@ -203,6 +206,18 @@ function TasksPage() {
           </SelectContent>
         </Select>
       </div>
+
+      <MonthCalendar
+        month={month}
+        onMonthChange={setMonth}
+        selected={selectedDay}
+        onSelect={(d) => setSelectedDay(d === selectedDay ? "" : d)}
+        tasks={(tasks.data ?? []).map((t) => ({
+          due: t.due_date,
+          status: t.status,
+          title: t.title,
+        }))}
+      />
 
       {rows.length ? (
         <div className="grid gap-5 lg:grid-cols-3">
