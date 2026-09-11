@@ -7,7 +7,8 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { useStaff } from "@/lib/queries";
+import { useStaff, useTeacherAttendanceRates } from "@/lib/queries";
+import { RateBadge } from "@/components/mini-charts";
 import { changeAccountRole, createAccount, resetAccountPassword } from "@/lib/admin.functions";
 import {
   ACCOUNT_STATUS_LABELS,
@@ -48,6 +49,7 @@ function TeachersPage() {
   const { isAdmin, isManager } = useAuth();
   const qc = useQueryClient();
   const staff = useStaff();
+  const rates = useTeacherAttendanceRates();
   const createFn = useServerFn(createAccount);
   const resetFn = useServerFn(resetAccountPassword);
   const roleFn = useServerFn(changeAccountRole);
