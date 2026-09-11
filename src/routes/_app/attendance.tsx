@@ -264,6 +264,15 @@ function AttendancePage() {
           />
         </div>
         <div className="space-y-2">
+          <Label>الشهر</Label>
+          <Input
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value || todayISO().slice(0, 7))}
+            className="w-44"
+          />
+        </div>
+        <div className="space-y-2">
           <Label>تصفية الحالة</Label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-44">
@@ -429,15 +438,27 @@ function Row({
   value,
   onChange,
   disabled,
+  rate,
 }: {
   name: string;
   value?: Status | undefined;
   onChange: (v: Status) => void;
   disabled?: boolean | undefined;
+  rate?: { present: number; total: number; rate: number } | undefined;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-      <span className="text-sm font-medium">{name}</span>
+      <span className="flex items-center gap-2 text-sm font-medium">
+        {name}
+        {rate ? (
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <RateBadge value={rate.rate} />
+            <span>
+              ({rate.present}/{rate.total})
+            </span>
+          </span>
+        ) : null}
+      </span>
       <StatusButtons value={value} onChange={onChange} disabled={disabled} />
     </div>
   );
