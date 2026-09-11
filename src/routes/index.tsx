@@ -78,7 +78,7 @@ function LoginPage() {
           <img
             src={wordmark.url}
             alt="مقرأة حبل الله المتين"
-            className="mx-auto w-full max-w-xs select-none dark:invert dark:brightness-125"
+            className="mx-auto w-full max-w-[220px] select-none dark:invert dark:brightness-125"
           />
           <div className="gold-divider mx-auto mt-3 w-32" />
           <p className="mt-3 text-sm text-muted-foreground">نظام الإدارة الداخلي</p>
