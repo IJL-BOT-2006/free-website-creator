@@ -300,11 +300,12 @@ function StudentsPage() {
 
       {rows.length ? (
         <div className="card-panel overflow-x-auto">
-          <table className="w-full text-right text-sm">
+          <table className="table-elegant">
             <thead className="bg-muted/60 text-xs text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 font-medium">الاسم</th>
                 <th className="px-4 py-3 font-medium">الحلقة</th>
+                <th className="px-4 py-3 font-medium">نسبة الحضور</th>
                 <th className="px-4 py-3 font-medium">الإقامة</th>
                 <th className="px-4 py-3 font-medium">الحالة</th>
                 <th className="px-4 py-3 font-medium">التنبيه</th>
@@ -323,6 +324,18 @@ function StudentsPage() {
                     </p>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{circleName(s.circle_id)}</td>
+                  <td className="px-4 py-3">
+                    {rates.data?.[s.id] ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                        <RateBadge value={rates.data[s.id]!.rate} />
+                        <span>
+                          ({rates.data[s.id]!.present}/{rates.data[s.id]!.total})
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {s.country ? `${flagOf(s.country)} ${s.country}` : "—"}
                   </td>
@@ -586,7 +599,7 @@ function StudentsPage() {
                         ? "تعهد"
                         : e.event_type === "status_change"
                           ? "تغيير الحالة"
-                          : "نقل"}
+                          : `نقل: ${circleName(e.from_value)} ← ${circleName(e.to_value)}`}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {formatDateTime(e.created_at)}
