@@ -11,6 +11,7 @@ import { usernameToEmail } from "@/lib/constants";
 import { useAuth } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Logo } from "@/components/logo";
+import wordmark from "@/assets/wordmark.png.asset.json";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,9 +74,12 @@ function LoginPage() {
       <div className="page-enter relative z-10 w-full max-w-md">
         <div className="mb-8 text-center">
           <Logo className="mx-auto mb-4 size-28" glow />
-          <h1 className="font-thuluth text-4xl font-bold leading-relaxed text-gradient-gold sm:text-5xl">
-            مقرأة حبل الله المتين
-          </h1>
+          <h1 className="sr-only">مقرأة حبل الله المتين</h1>
+          <img
+            src={wordmark.url}
+            alt="مقرأة حبل الله المتين"
+            className="mx-auto w-full max-w-xs select-none dark:invert dark:brightness-125"
+          />
           <div className="gold-divider mx-auto mt-3 w-32" />
           <p className="mt-3 text-sm text-muted-foreground">نظام الإدارة الداخلي</p>
         </div>

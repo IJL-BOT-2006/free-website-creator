@@ -43,6 +43,48 @@ export function useStaff() {
   });
 }
 
+export type RateMap = Record<string, { present: number; total: number; rate: number }>;
+
+function toRates(rows: { key: string; status: string }[]): RateMap {
+  const acc: RateMap = {};
+  for (const r of rows) {
+    const cur = acc[r.key] ?? { present: 0, total: 0, rate: 0 };
+    cur.total += 1;
+    if (r.status === "present") cur.present += 1;
+    cur.rate = Math.round((cur.present / cur.total) * 100);
+    acc[r.key] = cur;
+  }
+  return acc;
+}
+
+/** نسبة الحضور لكل طالبة (اختياريًا ضمن شهر بصيغة YYYY-MM). */
+export function useStudentAttendanceRates(month?: string) {
+  return useQuery({
+    queryKey: ["student-attendance-rates", month ?? "all"],
+    queryFn: async (): Promise<RateMap> => {
+      let q = supabase.from("student_attendance").select("student_id, status, session_date");
+      if (month) q = q.gte("session_date", `${month}-01`).lte("session_date", `${month}-31`);
+      const { data, error } = await q;
+      if (error) throw error;
+      return toRates((data ?? []).map((r) => ({ key: r.student_id, status: r.status })));
+    },
+  });
+}
+
+/** نسبة الحضور لكل معلمة. */
+export function useTeacherAttendanceRates(month?: string) {
+  return useQuery({
+    queryKey: ["teacher-attendance-rates", month ?? "all"],
+    queryFn: async (): Promise<RateMap> => {
+      let q = supabase.from("teacher_attendance").select("teacher_id, status, session_date");
+      if (month) q = q.gte("session_date", `${month}-01`).lte("session_date", `${month}-31`);
+      const { data, error } = await q;
+      if (error) throw error;
+      return toRates((data ?? []).map((r) => ({ key: r.teacher_id, status: r.status })));
+    },
+  });
+}
+
 export function useStudents() {
   return useQuery({
     queryKey: ["students"],
