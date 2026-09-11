@@ -229,7 +229,7 @@ function AttendancePage() {
 
       <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="نسبة الحضور (٣٠ يومًا)"
+          label="نسبة الحضور (الشهر المحدد)"
           value={totalAll ? `${Math.round((totals.present / totalAll) * 100)}%` : "—"}
           tone="success"
         />
@@ -329,6 +329,7 @@ function AttendancePage() {
               name={s.full_name}
               value={marks[s.id]}
               disabled={!canRecord}
+              rate={studentRates.data?.[s.id]}
               onChange={(v) => setMarks({ ...marks, [s.id]: v })}
             />
           ))}
@@ -351,6 +352,7 @@ function AttendancePage() {
                 key={t.id}
                 name={t.full_name}
                 value={teacherMarks[t.id]}
+                rate={teacherRates.data?.[t.id]}
                 disabled={!(isAdmin || isSupervisor || t.id === profile?.id)}
                 onChange={(v) => setTeacherMarks({ ...teacherMarks, [t.id]: v })}
               />
