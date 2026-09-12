@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, SendHorizonal, XCircle } from "lucide-react";
 
 import { askAssistant, executeAssistantAction } from "@/lib/assistant.functions";
 import { Logo } from "@/components/logo";
@@ -16,12 +16,7 @@ import {
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
-import {
-  PromptInput,
-  PromptInputFooter,
-  PromptInputSubmit,
-  PromptInputTextarea,
-} from "@/components/ai-elements/prompt-input";
+import { Textarea } from "@/components/ui/textarea";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 
 export const Route = createFileRoute("/_app/assistant")({
@@ -63,6 +58,7 @@ function AssistantPage() {
   const [status, setStatus] = useState<"ready" | "submitted" | "error">("ready");
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [executing, setExecuting] = useState(false);
+  const [input, setInput] = useState("");
   const busy = useRef(false);
 
   async function send(text: string) {
