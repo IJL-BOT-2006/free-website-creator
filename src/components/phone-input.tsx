@@ -21,7 +21,7 @@ export function PhoneInput({
 }) {
   return (
     <div className="flex gap-2">
-      <Select value={code || undefined} onValueChange={onCode}>
+      <Select value={code} onValueChange={onCode}>
         <SelectTrigger className="w-32 shrink-0">
           <SelectValue placeholder="الدولة" />
         </SelectTrigger>
