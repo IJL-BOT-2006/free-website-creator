@@ -97,17 +97,23 @@ function AppLayout() {
   useEffect(() => {
     let startX: number | null = null;
     let startY = 0;
+    let fromEdge = false;
     const onStart = (e: TouchEvent) => {
       const t = e.touches[0];
       if (!t) return;
       startY = t.clientY;
-      startX = window.innerWidth - t.clientX < 32 ? t.clientX : null;
+      fromEdge = window.innerWidth - t.clientX < 32;
+      startX = fromEdge || open ? t.clientX : null;
     };
     const onEnd = (e: TouchEvent) => {
       const t = e.changedTouches[0];
       if (startX === null || !t) return;
       const dx = startX - t.clientX;
-      if (dx > 60 && Math.abs(t.clientY - startY) < 70) setOpen(true);
+      const vertical = Math.abs(t.clientY - startY);
+      // سحب من الحافة اليمنى إلى اليسار: فتح القائمة
+      if (!open && fromEdge && dx > 60 && vertical < 70) setOpen(true);
+      // سحب من اليسار إلى اليمين والقائمة مفتوحة: إغلاقها
+      if (open && dx < -60 && vertical < 70) setOpen(false);
       startX = null;
     };
     window.addEventListener("touchstart", onStart, { passive: true });
@@ -116,7 +122,7 @@ function AppLayout() {
       window.removeEventListener("touchstart", onStart);
       window.removeEventListener("touchend", onEnd);
     };
-  }, []);
+  }, [open]);
 
   if (loading || !session) {
     return (

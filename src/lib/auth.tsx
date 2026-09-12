@@ -8,6 +8,7 @@ type Profile = {
   id: string;
   full_name: string;
   username: string;
+  username_display: string | null;
   phone: string | null;
   phone_code: string | null;
   birth_date: string | null;
@@ -17,6 +18,10 @@ type Profile = {
   residence_country: string | null;
   status: string;
   notes: string | null;
+  avatar_url: string | null;
+  notify_announcements: boolean;
+  notify_tasks: boolean;
+  notify_requests: boolean;
 };
 
 type AuthValue = {

@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, SendHorizonal, XCircle } from "lucide-react";
 
 import { askAssistant, executeAssistantAction } from "@/lib/assistant.functions";
 import { Logo } from "@/components/logo";
@@ -16,12 +16,7 @@ import {
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
-import {
-  PromptInput,
-  PromptInputFooter,
-  PromptInputSubmit,
-  PromptInputTextarea,
-} from "@/components/ai-elements/prompt-input";
+import { Textarea } from "@/components/ui/textarea";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 
 export const Route = createFileRoute("/_app/assistant")({
@@ -63,6 +58,7 @@ function AssistantPage() {
   const [status, setStatus] = useState<"ready" | "submitted" | "error">("ready");
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [executing, setExecuting] = useState(false);
+  const [input, setInput] = useState("");
   const busy = useRef(false);
 
   async function send(text: string) {
@@ -104,7 +100,7 @@ function AssistantPage() {
   }
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-11rem)] max-w-3xl flex-col">
+    <div className="mx-auto flex min-h-[32rem] max-w-3xl flex-col lg:h-[calc(100vh-11rem)]">
       <PageHeader
         title="المساعد الذكي"
         description="اطلبي صياغة رسالة، تلخيص تقرير، بيانات طالبة، أو إنشاء إعلان ومهمة."
@@ -176,17 +172,35 @@ function AssistantPage() {
         </Conversation>
 
         <div className="border-t border-border p-3">
-          <PromptInput
-            onSubmit={(message, event) => {
-              event.currentTarget.reset();
-              void send(message.text);
+          <form
+            className="flex items-end gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const value = input;
+              setInput("");
+              void send(value);
             }}
           >
-            <PromptInputTextarea placeholder="اكتبي طلبك هنا..." />
-            <PromptInputFooter className="justify-end">
-              <PromptInputSubmit status={status === "error" ? "error" : status} />
-            </PromptInputFooter>
-          </PromptInput>
+            <Textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  const value = input;
+                  setInput("");
+                  void send(value);
+                }
+              }}
+              rows={2}
+              placeholder="اكتبي طلبك هنا..."
+              className="min-h-[3rem] flex-1 resize-none"
+            />
+            <Button type="submit" size="icon" disabled={status === "submitted" || !input.trim()}>
+              <SendHorizonal className="size-4" />
+              <span className="sr-only">إرسال</span>
+            </Button>
+          </form>
         </div>
       </div>
     </div>

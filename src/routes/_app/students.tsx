@@ -67,7 +67,7 @@ type Form = {
 
 const EMPTY: Form = {
   full_name: "",
-  phone_code: "+963",
+  phone_code: "",
   phone: "",
   birth_date: "",
   education_level: "",
@@ -201,7 +201,7 @@ function StudentsPage() {
   function openEdit(id: string) {
     const s = all.find((x) => x.id === id);
     if (!s) return;
-    const code = s.phone_code ?? "+963";
+    const code = s.phone_code ?? "";
     setForm({
       id: s.id,
       full_name: s.full_name,
