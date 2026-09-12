@@ -156,7 +156,7 @@ function SettingsPage() {
     mutationFn: async ({ key, value }: { key: NotifyKey; value: boolean }) => {
       const { error } = await supabase
         .from("profiles")
-        .update({ [key]: value })
+        .update({ [key]: value } as Record<NotifyKey, boolean>)
         .eq("id", profile!.id);
       if (error) throw error;
     },

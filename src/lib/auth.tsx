@@ -8,6 +8,7 @@ type Profile = {
   id: string;
   full_name: string;
   username: string;
+  username_display: string | null;
   phone: string | null;
   phone_code: string | null;
   birth_date: string | null;
