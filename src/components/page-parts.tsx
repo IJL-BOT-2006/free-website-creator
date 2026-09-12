@@ -13,8 +13,11 @@ export function PageHeader({
   return (
     <div className="relative mb-7">
       <div aria-hidden className="page-aura" />
-      <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <div className="relative z-10 flex flex-wrap items-start gap-3">
+        {actions && (
+          <div className="order-1 flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+        )}
+        <div className="order-2 min-w-0 flex-1">
           <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-[1.7rem]">
             {title}
           </h1>
@@ -22,7 +25,6 @@ export function PageHeader({
             <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
           )}
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
       <div className="accent-divider relative z-10 mt-4" />
     </div>
