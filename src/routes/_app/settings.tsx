@@ -35,7 +35,7 @@ function SettingsPage() {
   const [password, setPassword] = useState("");
   const [form, setForm] = useState({
     full_name: "",
-    phone_code: "+963",
+    phone_code: "",
     phone: "",
     birth_date: "",
     education_level: "",
@@ -49,7 +49,7 @@ function SettingsPage() {
     if (!profile) return;
     setForm({
       full_name: profile.full_name ?? "",
-      phone_code: profile.phone_code ?? "+963",
+      phone_code: profile.phone_code ?? "",
       phone: profile.phone ?? "",
       birth_date: profile.birth_date ?? "",
       education_level: profile.education_level ?? "",
