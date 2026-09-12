@@ -17,6 +17,10 @@ type Profile = {
   residence_country: string | null;
   status: string;
   notes: string | null;
+  avatar_url: string | null;
+  notify_announcements: boolean;
+  notify_tasks: boolean;
+  notify_requests: boolean;
 };
 
 type AuthValue = {
