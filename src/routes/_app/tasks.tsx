@@ -68,6 +68,93 @@ const emptyForm = {
   notes: "",
 };
 
+const WEEKDAYS = ["أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"];
+
+function MonthCalendar({
+  month,
+  onMonthChange,
+  selected,
+  onSelect,
+  tasks,
+}: {
+  month: string;
+  onMonthChange: (m: string) => void;
+  selected: string;
+  onSelect: (d: string) => void;
+  tasks: { due: string | null; status: string; title: string }[];
+}) {
+  const [y, m] = month.split("-").map(Number);
+  const year = y ?? new Date().getFullYear();
+  const mon = (m ?? 1) - 1;
+  const first = new Date(Date.UTC(year, mon, 1));
+  const daysInMonth = new Date(Date.UTC(year, mon + 1, 0)).getUTCDate();
+  const lead = first.getUTCDay();
+
+  const byDay = new Map<string, { done: number; total: number }>();
+  for (const t of tasks) {
+    if (!t.due || !t.due.startsWith(month)) continue;
+    const e = byDay.get(t.due) ?? { done: 0, total: 0 };
+    e.total += 1;
+    if (t.status === "done") e.done += 1;
+    byDay.set(t.due, e);
+  }
+
+  const shift = (delta: number) => {
+    const d = new Date(Date.UTC(year, mon + delta, 1));
+    onMonthChange(d.toISOString().slice(0, 7));
+  };
+
+  return (
+    <div className="card-panel mb-6 p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <Button size="sm" variant="ghost" onClick={() => shift(-1)}>السابق</Button>
+        <p className="flex items-center gap-2 text-sm font-bold">
+          <CalendarDays className="size-4 text-primary" />
+          {new Intl.DateTimeFormat("ar", { month: "long", year: "numeric", timeZone: "UTC" }).format(first)}
+        </p>
+        <Button size="sm" variant="ghost" onClick={() => shift(1)}>التالي</Button>
+      </div>
+      <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-muted-foreground">
+        {WEEKDAYS.map((d) => (
+          <span key={d} className="py-1">{d}</span>
+        ))}
+        {Array.from({ length: lead }).map((_, i) => (
+          <span key={`lead-${i}`} />
+        ))}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
+          const iso = `${year}-${String(mon + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const info = byDay.get(iso);
+          return (
+            <button
+              key={iso}
+              type="button"
+              onClick={() => onSelect(iso)}
+              className={cn(
+                "rounded-lg border border-transparent px-1 py-1.5 text-xs transition-colors hover:bg-muted",
+                info && "font-bold text-foreground",
+                selected === iso && "border-primary bg-primary/10",
+              )}
+            >
+              {day}
+              {info && (
+                <span className="mt-0.5 block text-[9px] text-muted-foreground">
+                  {info.done}/{info.total}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {selected && (
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          عرض مهام {formatDate(selected)} — اضغطي اليوم مرة أخرى لإلغاء التصفية
+        </p>
+      )}
+    </div>
+  );
+}
+
 function parseSubtasks(value: unknown): Subtask[] {
   if (!Array.isArray(value)) return [];
   return value
