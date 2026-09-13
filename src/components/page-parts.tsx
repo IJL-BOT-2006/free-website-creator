@@ -84,6 +84,42 @@ export function EmptyState({ title, description }: { title: string; description?
   );
 }
 
+/** بطاقة رسم بياني مع حالة فارغة أنيقة بدل المحاور الفارغة. */
+export function ChartCard({
+  title,
+  badge,
+  icon,
+  isEmpty,
+  emptyText = "لا توجد بيانات كافية بعد لعرض الرسم.",
+  className,
+  children,
+}: {
+  title: string;
+  badge?: ReactNode;
+  icon?: ReactNode;
+  isEmpty?: boolean;
+  emptyText?: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={cn("card-panel p-4 sm:p-5", className)}>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        {icon}
+        <p className="text-sm font-semibold">{title}</p>
+        {badge && <span className="mr-auto">{badge}</span>}
+      </div>
+      {isEmpty ? (
+        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-border/70 px-4 text-center text-xs text-muted-foreground">
+          {emptyText}
+        </div>
+      ) : (
+        <div className="h-56 sm:h-64">{children}</div>
+      )}
+    </div>
+  );
+}
+
 export function StatusPill({
   label,
   tone = "default",
