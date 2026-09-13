@@ -57,13 +57,20 @@ function toRates(rows: { key: string; status: string }[]): RateMap {
   return acc;
 }
 
+/** آخر يوم فعلي في شهر بصيغة YYYY-MM (يتفادى تواريخ غير صالحة مثل 09-31). */
+function monthEnd(month: string) {
+  const [y, m] = month.split("-").map(Number);
+  const last = new Date(Date.UTC(y!, m!, 0)).getUTCDate();
+  return `${month}-${String(last).padStart(2, "0")}`;
+}
+
 /** نسبة الحضور لكل طالبة (اختياريًا ضمن شهر بصيغة YYYY-MM). */
 export function useStudentAttendanceRates(month?: string) {
   return useQuery({
     queryKey: ["student-attendance-rates", month ?? "all"],
     queryFn: async (): Promise<RateMap> => {
       let q = supabase.from("student_attendance").select("student_id, status, session_date");
-      if (month) q = q.gte("session_date", `${month}-01`).lte("session_date", `${month}-31`);
+      if (month) q = q.gte("session_date", `${month}-01`).lte("session_date", monthEnd(month));
       const { data, error } = await q;
       if (error) throw error;
       return toRates((data ?? []).map((r) => ({ key: r.student_id, status: r.status })));
@@ -77,7 +84,7 @@ export function useTeacherAttendanceRates(month?: string) {
     queryKey: ["teacher-attendance-rates", month ?? "all"],
     queryFn: async (): Promise<RateMap> => {
       let q = supabase.from("teacher_attendance").select("teacher_id, status, session_date");
-      if (month) q = q.gte("session_date", `${month}-01`).lte("session_date", `${month}-31`);
+      if (month) q = q.gte("session_date", `${month}-01`).lte("session_date", monthEnd(month));
       const { data, error } = await q;
       if (error) throw error;
       return toRates((data ?? []).map((r) => ({ key: r.teacher_id, status: r.status })));
