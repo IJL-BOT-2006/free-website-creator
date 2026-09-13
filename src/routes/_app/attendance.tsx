@@ -28,7 +28,7 @@ import {
 } from "@/lib/queries";
 import { RateBadge } from "@/components/mini-charts";
 import { ATTENDANCE_LABELS } from "@/lib/constants";
-import { EmptyState, PageHeader, StatCard } from "@/components/page-parts";
+import { ChartCard, EmptyState, PageHeader, StatCard } from "@/components/page-parts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -362,39 +362,49 @@ function AttendancePage() {
       )}
 
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
-        <div className="card-panel p-5 lg:col-span-2">
-          <p className="mb-4 text-sm font-semibold">حضور الطالبات آخر ١٤ جلسة</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chart}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="day" fontSize={11} />
-                <YAxis fontSize={11} allowDecimals={false} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="حاضرة" stackId="a" fill="var(--color-success)" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="بعذر" stackId="a" fill="var(--color-warning)" />
-                <Bar dataKey="بدون عذر" stackId="a" fill="var(--color-destructive)" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        <div className="card-panel p-5">
-          <p className="mb-4 text-sm font-semibold">توزيع الحالات</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={pie} dataKey="value" nameKey="name" innerRadius={50} outerRadius={85}>
-                  {pie.map((p) => (
-                    <Cell key={p.key} fill={TONES[p.key]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <ChartCard
+          className="lg:col-span-2"
+          title="حضور الطالبات آخر ١٤ جلسة"
+          isEmpty={!chart.some((d) => d["حاضرة"] || d["بعذر"] || d["بدون عذر"])}
+          emptyText="لم يُسجَّل حضور بعد في هذه الفترة."
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
+              <XAxis dataKey="day" fontSize={10} tickLine={false} axisLine={false} minTickGap={24} />
+              <YAxis
+                fontSize={10}
+                allowDecimals={false}
+                orientation="right"
+                width={28}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="حاضرة" stackId="a" fill="var(--color-success)" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="بعذر" stackId="a" fill="var(--color-warning)" />
+              <Bar dataKey="بدون عذر" stackId="a" fill="var(--color-destructive)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard
+          title="توزيع الحالات"
+          isEmpty={!pie.some((p) => p.value > 0)}
+          emptyText="لا توجد سجلات حضور لعرض التوزيع."
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={pie} dataKey="value" nameKey="name" innerRadius={46} outerRadius={78}>
+                {pie.map((p) => (
+                  <Cell key={p.key} fill={TONES[p.key]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
     </div>
   );
