@@ -19,7 +19,7 @@ import { BookOpenText, CalendarCheck, GraduationCap, Inbox, TrendingUp, Users } 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ROLE_LABELS, STUDENT_STATUS_LABELS } from "@/lib/constants";
-import { PageHeader, StatCard } from "@/components/page-parts";
+import { ChartCard, PageHeader, StatCard } from "@/components/page-parts";
 
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
@@ -127,100 +127,142 @@ function DashboardPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="card-panel p-5 lg:col-span-2">
-          <div className="mb-4 flex items-center gap-2">
-            <TrendingUp className="size-4 text-primary" />
-            <p className="font-semibold">نسبة الحضور خلال أسبوعين</p>
-            <span className="mr-auto rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+        <ChartCard
+          className="lg:col-span-2"
+          title="نسبة الحضور خلال أسبوعين"
+          icon={<TrendingUp className="size-4 text-primary" />}
+          badge={
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               المتوسط {attendanceRate}%
             </span>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trend}>
-                <defs>
-                  <linearGradient id="att" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.45} />
-                    <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="day" tick={{ fontSize: 11 }} reversed />
-                <YAxis tick={{ fontSize: 11 }} orientation="right" domain={[0, 100]} />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="نسبة"
-                  stroke="var(--color-primary)"
-                  strokeWidth={2}
-                  fill="url(#att)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+          }
+          isEmpty={attendance.length === 0}
+          emptyText="لم يُسجَّل حضور خلال الأسبوعين الماضيين."
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={trend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="att" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.45} />
+                  <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
+              <XAxis
+                dataKey="day"
+                tick={{ fontSize: 10 }}
+                reversed
+                tickLine={false}
+                axisLine={false}
+                minTickGap={24}
+              />
+              <YAxis
+                tick={{ fontSize: 10 }}
+                orientation="right"
+                domain={[0, 100]}
+                width={32}
+                tickCount={5}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip />
+              <Area
+                type="monotone"
+                dataKey="نسبة"
+                stroke="var(--color-primary)"
+                strokeWidth={2}
+                fill="url(#att)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
-        <div className="card-panel p-5">
-          <p className="mb-4 font-semibold">توزيع حالات الطالبات</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={statusData} dataKey="value" nameKey="name" innerRadius={52} outerRadius={82} paddingAngle={3}>
-                  {statusData.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-            {statusData.map((s, i) => (
-              <span key={s.name} className="flex items-center gap-2">
-                <span
-                  className="size-2.5 rounded-full"
-                  style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
-                />
-                {s.name} ({s.value})
-              </span>
-            ))}
-          </div>
-        </div>
+        <ChartCard
+          title="توزيع حالات الطالبات"
+          isEmpty={students.length === 0}
+          emptyText="أضيفي الطالبات لعرض التوزيع."
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={statusData} dataKey="value" nameKey="name" innerRadius={48} outerRadius={76} paddingAngle={3}>
+                {statusData.map((_, i) => (
+                  <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="card-panel p-5">
-          <p className="mb-4 font-semibold">عدد الطالبات في كل حلقة</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={perCircle}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} reversed />
-                <YAxis tick={{ fontSize: 11 }} orientation="right" allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="طالبات" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      {students.length > 0 && (
+        <div className="card-panel grid grid-cols-2 gap-2 p-4 text-xs sm:grid-cols-4">
+          {statusData.map((s, i) => (
+            <span key={s.name} className="flex items-center gap-2">
+              <span
+                className="size-2.5 shrink-0 rounded-full"
+                style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
+              />
+              {s.name} ({s.value})
+            </span>
+          ))}
         </div>
+      )}
 
-        <div className="card-panel p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <CalendarCheck className="size-4 text-success" />
-            <p className="font-semibold">تقارير الحفظ اليومية</p>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trend}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="day" tick={{ fontSize: 10 }} reversed />
-                <YAxis tick={{ fontSize: 11 }} orientation="right" allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="تقارير" fill="var(--color-success)" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ChartCard
+          title="عدد الطالبات في كل حلقة"
+          isEmpty={perCircle.length === 0}
+          emptyText="لا توجد حلقات بعد."
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={perCircle} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} reversed tickLine={false} axisLine={false} />
+              <YAxis
+                tick={{ fontSize: 10 }}
+                orientation="right"
+                allowDecimals={false}
+                width={28}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip />
+              <Bar dataKey="طالبات" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard
+          title="تقارير الحفظ اليومية"
+          icon={<CalendarCheck className="size-4 text-success" />}
+          isEmpty={(data?.reports ?? []).length === 0}
+          emptyText="لا توجد تقارير حفظ خلال الفترة."
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={trend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
+              <XAxis
+                dataKey="day"
+                tick={{ fontSize: 10 }}
+                reversed
+                tickLine={false}
+                axisLine={false}
+                minTickGap={24}
+              />
+              <YAxis
+                tick={{ fontSize: 10 }}
+                orientation="right"
+                allowDecimals={false}
+                width={28}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip />
+              <Bar dataKey="تقارير" fill="var(--color-success)" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
     </div>
   );

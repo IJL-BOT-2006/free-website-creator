@@ -13,12 +13,14 @@ export function PageHeader({
   return (
     <div className="relative mb-7">
       <div aria-hidden className="page-aura" />
-      <div className="relative z-10 flex flex-wrap items-start gap-3">
+      <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-start">
         {actions && (
-          <div className="order-1 flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+          <div className="flex flex-wrap items-center gap-2 sm:order-first sm:shrink-0">
+            {actions}
+          </div>
         )}
-        <div className="order-2 min-w-0 flex-1">
-          <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-[1.7rem]">
+        <div className="min-w-0 flex-1">
+          <h1 className="font-display text-xl font-extrabold tracking-tight sm:text-[1.7rem]">
             {title}
           </h1>
           {description && (
@@ -78,6 +80,42 @@ export function EmptyState({ title, description }: { title: string; description?
     <div className="card-panel px-6 py-12 text-center">
       <p className="font-semibold">{title}</p>
       {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+    </div>
+  );
+}
+
+/** بطاقة رسم بياني مع حالة فارغة أنيقة بدل المحاور الفارغة. */
+export function ChartCard({
+  title,
+  badge,
+  icon,
+  isEmpty,
+  emptyText = "لا توجد بيانات كافية بعد لعرض الرسم.",
+  className,
+  children,
+}: {
+  title: string;
+  badge?: ReactNode;
+  icon?: ReactNode;
+  isEmpty?: boolean;
+  emptyText?: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={cn("card-panel p-4 sm:p-5", className)}>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        {icon}
+        <p className="text-sm font-semibold">{title}</p>
+        {badge && <span className="mr-auto">{badge}</span>}
+      </div>
+      {isEmpty ? (
+        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-border/70 px-4 text-center text-xs text-muted-foreground">
+          {emptyText}
+        </div>
+      ) : (
+        <div className="h-56 sm:h-64">{children}</div>
+      )}
     </div>
   );
 }
