@@ -19,7 +19,7 @@ import { BookOpenText, CalendarCheck, GraduationCap, Inbox, TrendingUp, Users } 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ROLE_LABELS, STUDENT_STATUS_LABELS } from "@/lib/constants";
-import { PageHeader, StatCard } from "@/components/page-parts";
+import { ChartCard, PageHeader, StatCard } from "@/components/page-parts";
 
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
