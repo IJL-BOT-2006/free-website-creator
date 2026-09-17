@@ -368,7 +368,7 @@
   background-image: linear-gradient(
     165deg,
     var(--color-card) 0%,
-    color-mix(in oklab, var(--page-accent) 7%, var(--color-card)) 100%
+        color-mix(in oklab, var(--page-accent) 12%, var(--color-card)) 100%
   );
   border: 1px solid color-mix(in oklab, var(--page-accent) 18%, var(--color-border));
   border-radius: var(--radius-2xl);
