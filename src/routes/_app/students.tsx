@@ -86,6 +86,12 @@ function StudentsPage() {
   const students = useStudents();
   const circles = useCircles();
   const rates = useStudentAttendanceRates();
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const prevD = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonth = `${prevD.getFullYear()}-${String(prevD.getMonth() + 1).padStart(2, "0")}`;
+  const ratesThisMonth = useStudentAttendanceRates(thisMonth);
+  const ratesPrevMonth = useStudentAttendanceRates(prevMonth);
   const [q, setQ] = useState("");
   const [circleFilter, setCircleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
