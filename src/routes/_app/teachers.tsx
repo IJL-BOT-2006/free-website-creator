@@ -50,6 +50,13 @@ function TeachersPage() {
   const qc = useQueryClient();
   const staff = useStaff();
   const rates = useTeacherAttendanceRates();
+  const rates = useTeacherAttendanceRates();
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const prevD = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonth = `${prevD.getFullYear()}-${String(prevD.getMonth() + 1).padStart(2, "0")}`;
+  const ratesThisMonth = useTeacherAttendanceRates(thisMonth);
+  const ratesPrevMonth = useTeacherAttendanceRates(prevMonth);
   const createFn = useServerFn(createAccount);
   const resetFn = useServerFn(resetAccountPassword);
   const roleFn = useServerFn(changeAccountRole);
