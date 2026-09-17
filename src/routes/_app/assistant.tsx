@@ -101,9 +101,23 @@ function AssistantPage() {
 
   return (
     <div className="mx-auto flex min-h-[32rem] max-w-3xl flex-col lg:h-[calc(100vh-11rem)]">
-      <PageHeader
+            <PageHeader
         title="المساعد الذكي"
         description="اطلبي صياغة رسالة، تلخيص تقرير، بيانات طالبة، أو إنشاء إعلان ومهمة."
+        actions={
+          messages.length > 0 && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                setMessages([]);
+                setPendingAction(null);
+              }}
+            >
+              محادثة جديدة
+            </Button>
+          )
+        }
       />
 
       <div className="card-panel flex min-h-0 flex-1 flex-col overflow-hidden">
