@@ -44,6 +44,17 @@ export const Route = createFileRoute("/_app/teachers")({
   }),
   component: TeachersPage,
 });
+function TrendChip({ current, previous }: { current?: number; previous?: number }) {
+  if (current == null || previous == null) return null;
+  const diff = current - previous;
+  if (diff === 0) return null;
+  const up = diff > 0;
+  return (
+    <span className={`text-[10px] font-medium ${up ? "text-success" : "text-destructive"}`}>
+      {up ? "▲" : "▼"} {Math.abs(diff)}٪ عن الشهر الماضي
+    </span>
+  );
+}
 
 function TeachersPage() {
   const { isAdmin, isManager } = useAuth();
