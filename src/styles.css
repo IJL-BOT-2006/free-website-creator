@@ -339,10 +339,10 @@
   pointer-events: none;
   border-radius: 9999px;
   filter: blur(72px);
-  opacity: 0.5;
+    opacity: 0.75;
   background-image: radial-gradient(
     circle at 60% 40%,
-    color-mix(in oklab, var(--page-accent) 45%, transparent) 0%,
+    color-mix(in oklab, var(--page-accent) 60%, transparent) 0%,
     transparent 70%
   );
 }
