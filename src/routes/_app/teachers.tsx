@@ -189,18 +189,25 @@ function TeachersPage() {
                   <td className="px-4 py-3 text-muted-foreground">
                     {s.username_display ?? s.full_name}
                   </td>
-                  <td className="px-4 py-3">
+                                    <td className="px-4 py-3">
                     {rates.data?.[s.id] ? (
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <RateBadge value={rates.data[s.id]!.rate} />
-                        <span>
-                          ({rates.data[s.id]!.present}/{rates.data[s.id]!.total})
+                      <div className="flex flex-col gap-0.5">
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          <RateBadge value={rates.data[s.id]!.rate} />
+                          <span>
+                            ({rates.data[s.id]!.present}/{rates.data[s.id]!.total})
+                          </span>
                         </span>
-                      </span>
+                        <TrendChip
+                          current={ratesThisMonth.data?.[s.id]?.rate}
+                          previous={ratesPrevMonth.data?.[s.id]?.rate}
+                        />
+                      </div>
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>
                     )}
                   </td>
+
                   <td className="px-4 py-3">
                     {isManager ? (
                       <Select
