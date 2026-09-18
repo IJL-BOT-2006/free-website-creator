@@ -36,11 +36,17 @@ export function Logo({
         className,
       )}
     >
-            {glow && (
-        <span
-          aria-hidden
-          className="absolute inset-0 -z-10 animate-pulse rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-sidebar-primary)_70%,transparent)_0%,transparent_75%)] blur-2xl [animation-duration:3s]"
-        />
+                  {glow && (
+        <>
+          <span
+            aria-hidden
+            className="absolute -inset-4 -z-10 animate-pulse rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-sidebar-primary)_85%,transparent)_0%,color-mix(in_oklab,var(--color-sidebar-primary)_35%,transparent)_45%,transparent_75%)] blur-2xl [animation-duration:3s]"
+          />
+          <span
+            aria-hidden
+            className="absolute -inset-1.5 -z-10 rounded-full ring-2 ring-[color-mix(in_oklab,var(--color-sidebar-primary)_65%,transparent)]"
+          />
+        </>
       )}
 
       {img}
