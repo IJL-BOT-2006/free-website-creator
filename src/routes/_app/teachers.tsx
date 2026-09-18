@@ -386,7 +386,13 @@ function TeachersPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+            </Dialog>
+
+      <TeacherMonthlyDialog
+        teacherId={monthlyId}
+        open={!!monthlyId}
+        onOpenChange={(o) => !o && setMonthlyId(null)}
+      />
     </div>
   );
 }
