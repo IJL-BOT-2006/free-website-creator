@@ -73,6 +73,7 @@ function TeachersPage() {
   const roleFn = useServerFn(changeAccountRole);
 
   const [open, setOpen] = useState(false);
+  const [monthlyId, setMonthlyId] = useState<string | null>(null);
   const [resetFor, setResetFor] = useState<string | null>(null);
   const [newPass, setNewPass] = useState("");
   const [form, setForm] = useState({
