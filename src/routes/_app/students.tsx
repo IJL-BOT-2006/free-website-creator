@@ -647,6 +647,11 @@ function StudentsPage() {
           </div>
         </DialogContent>
       </Dialog>
+      <StudentMonthlyDialog
+        studentId={monthlyId}
+        open={!!monthlyId}
+        onOpenChange={(o) => !o && setMonthlyId(null)}
+      />
     </div>
   );
 }
