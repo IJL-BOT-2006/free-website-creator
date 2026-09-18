@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useCircles, useStudentAttendanceRates, useStudents } from "@/lib/queries";
 import { RateBadge } from "@/components/mini-charts";
+import { StudentMonthlyDialog } from "@/components/monthly-attendance-dialog";
 import {
   EDUCATION_LEVELS,
   STUDENT_STATUS_LABELS,
