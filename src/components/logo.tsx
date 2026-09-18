@@ -39,7 +39,7 @@ export function Logo({
       {glow && (
         <span
           aria-hidden
-          className="absolute inset-0 -z-10 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-sidebar-primary)_45%,transparent)_0%,transparent_70%)] blur-xl"
+                    className="absolute inset-0 -z-10 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-sidebar-primary)_70%,transparent)_0%,transparent_75%)] blur-2xl"
         />
       )}
       {img}
