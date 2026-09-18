@@ -110,6 +110,8 @@ function StudentsPage() {
   const [warnFilter, setWarnFilter] = useState("all");
   const [form, setForm] = useState<Form | null>(null);
   const [historyId, setHistoryId] = useState<string | null>(null);
+  const [historyId, setHistoryId] = useState<string | null>(null);
+  const [monthlyId, setMonthlyId] = useState<string | null>(null);
   const [eventFor, setEventFor] = useState<{ id: string; type: "warning" | "pledge" } | null>(null);
   const [eventReason, setEventReason] = useState("");
 
