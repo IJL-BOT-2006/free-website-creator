@@ -339,8 +339,15 @@ function StudentsPage() {
             <tbody>
               {rows.map((s) => (
                 <tr key={s.id} className="border-t border-border">
-                  <td className="px-4 py-3">
-                    <p className="font-medium">{s.full_name}</p>
+                                    <td className="px-4 py-3">
+                    <button
+                      type="button"
+                      onClick={() => setMonthlyId(s.id)}
+                      className="font-medium text-primary underline-offset-2 hover:underline"
+                    >
+                      {s.full_name}
+                    </button>
+                    <p className="hidden font-medium">{s.full_name}</p>
                     <p className="text-xs text-muted-foreground" dir="ltr">
                       {s.phone ?? "—"}
                     </p>
