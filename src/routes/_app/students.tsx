@@ -364,9 +364,6 @@ function StudentsPage() {
                   <td className="px-4 py-3 text-muted-foreground">
                     {s.country ? `${flagOf(s.country)} ${s.country}` : "—"}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {s.country ? `${flagOf(s.country)} ${s.country}` : "—"}
-                  </td>
                   <td className="px-4 py-3">
                     <StatusPill
                       label={STUDENT_STATUS_LABELS[s.status] ?? s.status}
