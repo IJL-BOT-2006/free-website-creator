@@ -393,6 +393,12 @@ function TeachersPage() {
         teacherId={monthlyId}
         open={!!monthlyId}
         onOpenChange={(o) => !o && setMonthlyId(null)}
+      </Dialog>
+
+      <TeacherMonthlyDialog
+        teacherId={monthlyId}
+        open={!!monthlyId}
+        onOpenChange={(o) => !o && setMonthlyId(null)}
       />
     </div>
   );
