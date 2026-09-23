@@ -346,7 +346,6 @@ function StudentsPage() {
                     >
                       {s.full_name}
                     </button>
-                    <p className="hidden font-medium">{s.full_name}</p>
                     <p className="text-xs text-muted-foreground" dir="ltr">
                       {s.phone ?? "—"}
                     </p>
