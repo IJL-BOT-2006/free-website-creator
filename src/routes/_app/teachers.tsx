@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useStaff, useTeacherAttendanceRates } from "@/lib/queries";
 import { RateBadge } from "@/components/mini-charts";
 import { TeacherMonthlyDialog } from "@/components/monthly-attendance-dialog";
+import { TeacherMonthlyDialog } from "@/components/monthly-attendance-dialog";
 import { changeAccountRole, createAccount, resetAccountPassword } from "@/lib/admin.functions";
 import {
   ACCOUNT_STATUS_LABELS,
