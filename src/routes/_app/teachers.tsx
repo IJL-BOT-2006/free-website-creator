@@ -392,6 +392,7 @@ function TeachersPage() {
         teacherId={monthlyId}
         open={!!monthlyId}
         onOpenChange={(o) => !o && setMonthlyId(null)}
+              </DialogContent>
       </Dialog>
 
       <TeacherMonthlyDialog
