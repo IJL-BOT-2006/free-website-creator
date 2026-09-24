@@ -371,7 +371,7 @@ function TeachersPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!resetFor} onOpenChange={(o) => !o && setResetFor(null)}>
+            <Dialog open={!!resetFor} onOpenChange={(o) => !o && setResetFor(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>إعادة تعيين كلمة المرور</DialogTitle>
@@ -386,13 +386,6 @@ function TeachersPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-            </Dialog>
-
-      <TeacherMonthlyDialog
-        teacherId={monthlyId}
-        open={!!monthlyId}
-        onOpenChange={(o) => !o && setMonthlyId(null)}
-              </DialogContent>
       </Dialog>
 
       <TeacherMonthlyDialog
