@@ -212,9 +212,8 @@ function AssistantPage() {
         </Conversation>
 
         <div className="border-t border-border p-3">
-          <PromptInput
-            onSubmit={(message, event) => {
-              event.currentTarget.reset();
+                    <PromptInput
+            onSubmit={(message) => {
               void send(message.text);
             }}
           >
