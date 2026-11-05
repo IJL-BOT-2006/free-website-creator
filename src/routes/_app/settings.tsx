@@ -296,6 +296,20 @@ function SettingsPage() {
             />
           </div>
           <div className="space-y-2">
+            <Label>المستوى التعليمي والتخصص</Label>
+            <Input
+              list="education-options"
+              value={form.education_level}
+              placeholder="مثال: بكالوريوس — تخصص الشريعة"
+              onChange={(e) => setForm({ ...form, education_level: e.target.value })}
+            />
+            <datalist id="education-options">
+              {EDUCATION_LEVELS.map((l) => (
+                <option key={l} value={l} />
+              ))}
+            </datalist>
+          </div>
+          <div className="space-y-2">
             <Label>المهنة</Label>
             <Input value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} />
           </div>
