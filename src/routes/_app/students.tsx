@@ -488,23 +488,19 @@ function StudentsPage() {
                       onChange={(v) => setForm({ ...form, origin_country: v })}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>آخر مستوى دراسي</Label>
-                    <Select
+                                    <div className="space-y-2">
+                    <Label>آخر مستوى دراسي والتخصص</Label>
+                    <Input
+                      list="education-options"
                       value={form.education_level}
-                      onValueChange={(v) => setForm({ ...form, education_level: v })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختاري المستوى" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {EDUCATION_LEVELS.map((l) => (
-                          <SelectItem key={l} value={l}>
-                            {l}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      placeholder="مثال: بكالوريوس — تخصص الشريعة"
+                      onChange={(e) => setForm({ ...form, education_level: e.target.value })}
+                    />
+                    <datalist id="education-options">
+                      {EDUCATION_LEVELS.map((l) => (
+                        <option key={l} value={l} />
+                      ))}
+                    </datalist>
                   </div>
                   <div className="space-y-2">
                     <Label>المهنة / العمل</Label>
