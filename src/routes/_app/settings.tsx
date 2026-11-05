@@ -296,20 +296,6 @@ function SettingsPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label>المستوى التعليمي</Label>
-            <Select
-              value={form.education_level}
-              onValueChange={(v) => setForm({ ...form, education_level: v })}
-            >
-              <SelectTrigger><SelectValue placeholder="اختاري المستوى" /></SelectTrigger>
-              <SelectContent>
-                {EDUCATION_LEVELS.map((l) => (
-                  <SelectItem key={l} value={l}>{l}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
             <Label>المهنة</Label>
             <Input value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} />
           </div>
