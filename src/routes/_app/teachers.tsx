@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { KeyRound, ShieldCheck, UserPlus } from "lucide-react";
+import { Eye, KeyRound, ShieldCheck, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useStaff, useTeacherAttendanceRates } from "@/lib/queries";
 import { RateBadge } from "@/components/mini-charts";
 import { TeacherMonthlyDialog } from "@/components/monthly-attendance-dialog";
+import { StaffDetailsDialog } from "@/components/staff-details-dialog";
 import { changeAccountRole, createAccount, resetAccountPassword } from "@/lib/admin.functions";
 import {
   ACCOUNT_STATUS_LABELS,
@@ -45,7 +46,8 @@ export const Route = createFileRoute("/_app/teachers")({
   }),
   component: TeachersPage,
 });
-function TrendChip({ current, previous }: { current?: number | undefined; previous?: number | undefined }) {
+
+function TrendChip({ current, previous }: { current?: number; previous?: number }) {
   if (current == null || previous == null) return null;
   const diff = current - previous;
   if (diff === 0) return null;
@@ -56,6 +58,21 @@ function TrendChip({ current, previous }: { current?: number | undefined; previo
     </span>
   );
 }
+
+const EMPTY_FORM = {
+  fullName: "",
+  username: "",
+  password: "",
+  phoneCode: "",
+  phone: "",
+  birthDate: "",
+  educationLevel: "",
+  occupation: "",
+  originCountry: "",
+  residenceCountry: "",
+  role: "teacher" as AppRole,
+  notes: "",
+};
 
 function TeachersPage() {
   const { isAdmin, isManager } = useAuth();
@@ -74,37 +91,10 @@ function TeachersPage() {
 
   const [open, setOpen] = useState(false);
   const [monthlyId, setMonthlyId] = useState<string | null>(null);
+  const [detailsId, setDetailsId] = useState<string | null>(null);
   const [resetFor, setResetFor] = useState<string | null>(null);
   const [newPass, setNewPass] = useState("");
-  const [form, setForm] = useState({
-    fullName: "",
-    username: "",
-    password: "",
-    phoneCode: "",
-    phone: "",
-    birthDate: "",
-    educationLevel: "",
-    occupation: "",
-    originCountry: "",
-    residenceCountry: "",
-    role: "teacher" as AppRole,
-    notes: "",
-  });
-
-  const emptyForm = {
-    fullName: "",
-    username: "",
-    password: "",
-    phoneCode: "",
-    phone: "",
-    birthDate: "",
-    educationLevel: "",
-    occupation: "",
-    originCountry: "",
-    residenceCountry: "",
-    role: "teacher" as AppRole,
-    notes: "",
-  };
+  const [form, setForm] = useState(EMPTY_FORM);
 
   const create = useMutation({
     mutationFn: async () =>
@@ -112,8 +102,7 @@ function TeachersPage() {
     onSuccess: () => {
       toast.success("تم إنشاء الحساب");
       setOpen(false);
-      setForm(emptyForm);
-
+      setForm(EMPTY_FORM);
       qc.invalidateQueries({ queryKey: ["staff"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -183,7 +172,7 @@ function TeachersPage() {
             <tbody>
               {staff.data.map((s) => (
                 <tr key={s.id} className="border-t border-border">
-                                    <td className="px-4 py-3">
+                  <td className="px-4 py-3">
                     <button
                       type="button"
                       onClick={() => setMonthlyId(s.id)}
@@ -196,7 +185,7 @@ function TeachersPage() {
                   <td className="px-4 py-3 text-muted-foreground">
                     {s.username_display ?? s.full_name}
                   </td>
-                                    <td className="px-4 py-3">
+                  <td className="px-4 py-3">
                     {rates.data?.[s.id] ? (
                       <div className="flex flex-col gap-0.5">
                         <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -214,7 +203,6 @@ function TeachersPage() {
                       <span className="text-xs text-muted-foreground">—</span>
                     )}
                   </td>
-
                   <td className="px-4 py-3">
                     {isManager ? (
                       <Select
@@ -241,6 +229,9 @@ function TeachersPage() {
                   <td className="px-4 py-3">
                     {isAdmin && (
                       <div className="flex flex-wrap justify-end gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => setDetailsId(s.id)}>
+                          <Eye className="size-3.5" /> البيانات
+                        </Button>
                         <Button size="sm" variant="ghost" onClick={() => setResetFor(s.id)}>
                           <KeyRound className="size-3.5" /> كلمة المرور
                         </Button>
@@ -314,18 +305,18 @@ function TeachersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>المستوى التعليمي</Label>
-              <Select
+              <Label>المستوى التعليمي والتخصص</Label>
+              <Input
+                list="education-options"
                 value={form.educationLevel}
-                onValueChange={(v) => setForm({ ...form, educationLevel: v })}
-              >
-                <SelectTrigger><SelectValue placeholder="اختاري المستوى" /></SelectTrigger>
-                <SelectContent>
-                  {EDUCATION_LEVELS.map((l) => (
-                    <SelectItem key={l} value={l}>{l}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="مثال: بكالوريوس — تخصص الشريعة"
+                onChange={(e) => setForm({ ...form, educationLevel: e.target.value })}
+              />
+              <datalist id="education-options">
+                {EDUCATION_LEVELS.map((l) => (
+                  <option key={l} value={l} />
+                ))}
+              </datalist>
             </div>
             <div className="space-y-2">
               <Label>المهنة</Label>
@@ -348,7 +339,6 @@ function TeachersPage() {
                 onChange={(v) => setForm({ ...form, residenceCountry: v })}
               />
             </div>
-
             <div className="space-y-2">
               <Label>الرتبة</Label>
               <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as AppRole })}>
@@ -371,7 +361,7 @@ function TeachersPage() {
         </DialogContent>
       </Dialog>
 
-            <Dialog open={!!resetFor} onOpenChange={(o) => !o && setResetFor(null)}>
+      <Dialog open={!!resetFor} onOpenChange={(o) => !o && setResetFor(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>إعادة تعيين كلمة المرور</DialogTitle>
@@ -387,6 +377,12 @@ function TeachersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <StaffDetailsDialog
+        userId={detailsId}
+        open={!!detailsId}
+        onOpenChange={(o) => !o && setDetailsId(null)}
+      />
 
       <TeacherMonthlyDialog
         teacherId={monthlyId}
