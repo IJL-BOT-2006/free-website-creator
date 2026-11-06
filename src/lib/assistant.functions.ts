@@ -624,7 +624,7 @@ export const executeAssistantAction = createServerFn({ method: "POST" })
         fullName: action.full_name,
         username: action.username || action.full_name,
         password,
-        phone: action.phone ?? undefined,
+        ...(action.phone ? { phone: action.phone } : {}),
         role: action.role,
       });
       return done(

@@ -47,7 +47,7 @@ export const Route = createFileRoute("/_app/teachers")({
   component: TeachersPage,
 });
 
-function TrendChip({ current, previous }: { current?: number; previous?: number }) {
+function TrendChip({ current, previous }: { current?: number | undefined; previous?: number | undefined }) {
   if (current == null || previous == null) return null;
   const diff = current - previous;
   if (diff === 0) return null;
