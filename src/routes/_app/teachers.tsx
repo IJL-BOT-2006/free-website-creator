@@ -327,7 +327,8 @@ function TeachersPage() {
             </div>
             <div className="space-y-2">
               <Label>الدولة الأصلية</Label>
-              <CountrySelect
+                            <CountrySelect
+                multiple
                 value={form.originCountry}
                 onChange={(v) => setForm({ ...form, originCountry: v })}
               />
