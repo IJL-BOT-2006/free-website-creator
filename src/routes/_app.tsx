@@ -45,6 +45,7 @@ const NAV: NavItem[] = [
   { to: "/students", label: "الطالبات", icon: GraduationCap },
   { to: "/attendance", label: "الحضور والغياب", icon: CalendarCheck },
   { to: "/reports", label: "تقارير الحفظ", icon: FileBarChart },
+  { to: "/exams", label: "الاختبار التجريبي", icon: ClipboardList, roles: ["manager", "deputy", "supervisor", "teacher"] },
   { to: "/teachers", label: "المعلمات والمشرفات", icon: Users, roles: ["manager", "deputy", "supervisor"] },
   { to: "/requests", label: "الطلبات", icon: Inbox },
   { to: "/tasks", label: "المهام", icon: ListChecks },
