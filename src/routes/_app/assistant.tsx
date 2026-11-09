@@ -3,9 +3,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
 
 import { askAssistant, executeAssistantAction } from "@/lib/assistant.functions";
+import type { PendingAction, Preview } from "@/lib/assistant.functions";
+import { useAuth } from "@/lib/auth";
+import { ROLE_LABELS, type AppRole } from "@/lib/constants";
 import { Logo } from "@/components/logo";
 import { PageHeader } from "@/components/page-parts";
 import { Button } from "@/components/ui/button";
@@ -28,9 +31,9 @@ export const Route = createFileRoute("/_app/assistant")({
   head: () => ({
     meta: [
       { title: "المساعد الذكي — مقرأة حبل الله المتين" },
-      { name: "description", content: "مساعدة ذكية لصياغة الرسائل والتقارير وخطط المتابعة الإدارية للمقرأة." },
+      { name: "description", content: "مساعد ذكي يعمل ضمن صلاحيات رتبتك لإدارة المقرأة." },
       { property: "og:title", content: "المساعد الذكي — مقرأة حبل الله المتين" },
-      { property: "og:description", content: "مساعدة ذكية لصياغة الرسائل والتقارير." },
+      { property: "og:description", content: "مساعد ذكي لإدارة المقرأة." },
     ],
   }),
   component: AssistantPage,
@@ -38,37 +41,39 @@ export const Route = createFileRoute("/_app/assistant")({
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-type PendingAction =
-  | { type: "create_announcement"; title: string; content: string }
-  | {
-      type: "create_task";
-      title: string;
-      assignee_name: string;
-      assignee_id: string | null;
-      due_date: string | null;
-    }
-  | {
-      type: "update_circle_schedule";
-      circle_id: string;
-      circle_name: string;
-      days: string[];
-      time_text: string;
-    };
+const ABILITIES: Record<AppRole, string[]> = {
+  manager: ["كل بيانات المقرأة", "حلقات وطالبات وحسابات", "إعلانات ومهام", "مواعيد وتنبيهات"],
+  deputy: ["كل بيانات المقرأة", "حلقات وطالبات وحسابات الكادر", "إعلانات ومهام", "مواعيد وتنبيهات"],
+  supervisor: ["بيانات حلقاتك وطالباتك", "تعديل مواعيد الحلقات", "تنبيهات وتعهدات الطالبات"],
+  teacher: ["بيانات حلقتك وطالباتك", "تعديل موعد الحلقة", "تنبيهات وتعهدات الطالبات"],
+};
 
-const SUGGESTIONS = [
-  "كم نسبة حضور الطالبة [اكتبي اسمها هنا]؟",
-  "كم عدد الطلبات المعلّقة حاليًا؟",
-  "أنشئي إعلانًا عن اجتماع المعلمات الأسبوعي",
-  "أنشئي مهمة لأ. [اسم المعلمة] لمراجعة تقارير الحفظ",
-];
+const SUGGESTIONS: Record<AppRole, string[]> = {
+  manager: [
+    "أعطيني ملخصًا عامًا عن المقرأة",
+    "كم نسبة الحضور هذا الشهر؟",
+    "أنشئي إعلانًا عن اجتماع المعلمات الأسبوعي",
+    "ما هي المهام المفتوحة حاليًا؟",
+  ],
+  deputy: [
+    "أعطيني ملخصًا عامًا عن المقرأة",
+    "كم الطلبات المعلّقة حاليًا؟",
+    "أنشئي مهمة لمراجعة تقارير الحفظ",
+    "ما حضور الطالبات اليوم؟",
+  ],
+  supervisor: ["اعرضي لي حلقاتي", "كم نسبة الحضور هذا الأسبوع؟", "ما المهام المفتوحة؟", "ما بيانات إحدى معلماتي؟"],
+  teacher: ["اعرضي لي طالبات حلقتي", "كم نسبة الحضور هذا الأسبوع؟", "ما المهام المفتوحة؟", "ما موعد حلقتي؟"],
+};
 
 function AssistantPage() {
+  const { role } = useAuth();
+  const roleKey: AppRole = role ?? "teacher";
   const askFn = useServerFn(askAssistant);
   const executeFn = useServerFn(executeAssistantAction);
   const qc = useQueryClient();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<"ready" | "submitted" | "error">("ready");
-  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [pending, setPending] = useState<{ action: PendingAction; preview: Preview } | null>(null);
   const [executing, setExecuting] = useState(false);
   const busy = useRef(false);
 
@@ -76,14 +81,14 @@ function AssistantPage() {
     const value = text.trim();
     if (!value || busy.current) return;
     busy.current = true;
-    setPendingAction(null);
+    setPending(null);
     const next: ChatMessage[] = [...messages, { role: "user", content: value }];
     setMessages(next);
     setStatus("submitted");
     try {
       const res = await askFn({ data: { messages: next } });
       setMessages([...next, { role: "assistant", content: res.answer }]);
-      if (res.pendingAction) setPendingAction(res.pendingAction as PendingAction);
+      if (res.pendingAction && res.preview) setPending({ action: res.pendingAction, preview: res.preview });
       setStatus("ready");
     } catch (e) {
       setStatus("error");
@@ -94,16 +99,16 @@ function AssistantPage() {
   }
 
   async function confirmAction() {
-    if (!pendingAction) return;
+    if (!pending) return;
     setExecuting(true);
     try {
-      const res = await executeFn({ data: { action: pendingAction } });
-      toast.success(res.message);
+      const res = await executeFn({ data: { action: pending.action } });
+      toast.success("تم التنفيذ");
       setMessages((m) => [...m, { role: "assistant", content: `✅ ${res.message}` }]);
-      setPendingAction(null);
-      qc.invalidateQueries({ queryKey: ["tasks"] });
-      qc.invalidateQueries({ queryKey: ["announcements"] });
-      qc.invalidateQueries({ queryKey: ["circles"] });
+      setPending(null);
+      for (const k of ["tasks", "announcements", "circles", "students", "staff"]) {
+        qc.invalidateQueries({ queryKey: [k] });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "تعذر تنفيذ الإجراء");
     } finally {
@@ -112,10 +117,10 @@ function AssistantPage() {
   }
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-11rem)] max-w-3xl flex-col">
+    <div className="mx-auto flex h-[calc(100vh-10rem)] max-w-3xl flex-col">
       <PageHeader
         title="المساعد الذكي"
-        description="اسأليه عن بيانات طالبة أو معلمة أو حلقة، أو اطلبي إنشاء إعلان أو مهمة أو تعديل موعد حلقة."
+        description="اسأليه عن بيانات المقرأة أو اطلبي منه تجهيز إجراء، ولن يُنفَّذ شيء قبل تأكيدك."
         actions={
           messages.length > 0 && (
             <Button
@@ -123,7 +128,7 @@ function AssistantPage() {
               variant="secondary"
               onClick={() => {
                 setMessages([]);
-                setPendingAction(null);
+                setPending(null);
               }}
             >
               محادثة جديدة
@@ -131,6 +136,19 @@ function AssistantPage() {
           )
         }
       />
+
+      <div className="mb-4 rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3">
+        <p className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <ShieldCheck className="size-4" /> مساعد {ROLE_LABELS[roleKey]} — يعمل ضمن صلاحيات رتبتك فقط
+        </p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {ABILITIES[roleKey].map((a) => (
+            <span key={a} className="rounded-full bg-background px-2.5 py-1 text-[11px] text-muted-foreground ring-1 ring-border">
+              {a}
+            </span>
+          ))}
+        </div>
+      </div>
 
       <div className="card-panel flex min-h-0 flex-1 flex-col overflow-hidden">
         <Conversation className="min-h-0 flex-1">
@@ -142,7 +160,7 @@ function AssistantPage() {
                 description="اختاري اقتراحًا جاهزًا أو اكتبي طلبك بالأسفل."
               >
                 <div className="mt-4 grid w-full gap-2 sm:grid-cols-2">
-                  {SUGGESTIONS.map((s) => (
+                  {SUGGESTIONS[roleKey].map((s) => (
                     <button
                       key={s}
                       type="button"
@@ -163,45 +181,23 @@ function AssistantPage() {
                 </Message>
               ))
             )}
-            {status === "submitted" && (
-              <Shimmer className="px-1 text-sm">جارٍ التفكير…</Shimmer>
-            )}
-            {pendingAction && (
+            {status === "submitted" && <Shimmer className="px-1 text-sm">جارٍ التفكير…</Shimmer>}
+            {pending && (
               <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-4">
-                <p className="mb-2 text-xs font-semibold text-primary">بانتظار تأكيدك</p>
-
-                {pendingAction.type === "create_announcement" && (
-                  <div className="mb-3 text-sm">
-                    <p className="font-semibold">{pendingAction.title}</p>
-                    <p className="mt-1 text-muted-foreground">{pendingAction.content}</p>
-                  </div>
-                )}
-
-                {pendingAction.type === "create_task" && (
-                  <div className="mb-3 text-sm">
-                    <p className="font-semibold">{pendingAction.title}</p>
-                    <p className="mt-1 text-muted-foreground">
-                      المكلّفة: {pendingAction.assignee_name}
-                      {pendingAction.due_date ? ` · الموعد: ${pendingAction.due_date}` : ""}
-                    </p>
-                  </div>
-                )}
-
-                {pendingAction.type === "update_circle_schedule" && (
-                  <div className="mb-3 text-sm">
-                    <p className="font-semibold">حلقة {pendingAction.circle_name}</p>
-                    <p className="mt-1 text-muted-foreground">
-                      الأيام الجديدة: {pendingAction.days.join("، ") || "—"}
-                      {pendingAction.time_text ? ` · الوقت: ${pendingAction.time_text}` : ""}
-                    </p>
-                  </div>
-                )}
-
+                <p className="mb-2 text-xs font-semibold text-primary">
+                  بانتظار تأكيدك — لن يُنفَّذ شيء قبل الضغط على «تأكيد وتنفيذ»
+                </p>
+                <p className="font-semibold">{pending.preview.title}</p>
+                <ul className="mb-3 mt-1 space-y-0.5 text-sm text-muted-foreground">
+                  {pending.preview.lines.map((l, i) => (
+                    <li key={i}>{l}</li>
+                  ))}
+                </ul>
                 <div className="flex gap-2">
                   <Button size="sm" onClick={confirmAction} disabled={executing}>
                     <CheckCircle2 className="size-4" /> تأكيد وتنفيذ
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={() => setPendingAction(null)} disabled={executing}>
+                  <Button size="sm" variant="secondary" onClick={() => setPending(null)} disabled={executing}>
                     <XCircle className="size-4" /> إلغاء
                   </Button>
                 </div>
@@ -212,7 +208,7 @@ function AssistantPage() {
         </Conversation>
 
         <div className="border-t border-border p-3">
-                    <PromptInput
+          <PromptInput
             onSubmit={(message) => {
               void send(message.text);
             }}
