@@ -16,6 +16,7 @@ import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
 import { Route as AppAttendanceRouteImport } from './routes/_app/attendance'
 import { Route as AppCirclesRouteImport } from './routes/_app/circles'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppExamsRouteImport } from './routes/_app/exams'
 import { Route as AppLogsRouteImport } from './routes/_app/logs'
 import { Route as AppReportsRouteImport } from './routes/_app/reports'
 import { Route as AppRequestsRouteImport } from './routes/_app/requests'
@@ -24,6 +25,7 @@ import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStudentsRouteImport } from './routes/_app/students'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
 import { Route as AppTeachersRouteImport } from './routes/_app/teachers'
+import { Route as ExamTokenRouteImport } from './routes/exam.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -57,6 +59,11 @@ const AppCirclesRoute = AppCirclesRouteImport.update({
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExamsRoute = AppExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLogsRoute = AppLogsRouteImport.update({
@@ -99,6 +106,11 @@ const AppTeachersRoute = AppTeachersRouteImport.update({
   path: '/teachers',
   getParentRoute: () => AppRoute,
 } as any)
+const ExamTokenRoute = ExamTokenRouteImport.update({
+  id: '/exam/$token',
+  path: '/exam/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -107,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/attendance': typeof AppAttendanceRoute
   '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/exams': typeof AppExamsRoute
   '/logs': typeof AppLogsRoute
   '/reports': typeof AppReportsRoute
   '/requests': typeof AppRequestsRoute
@@ -115,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/students': typeof AppStudentsRoute
   '/tasks': typeof AppTasksRoute
   '/teachers': typeof AppTeachersRoute
+  '/exam/$token': typeof ExamTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -123,6 +137,7 @@ export interface FileRoutesByTo {
   '/attendance': typeof AppAttendanceRoute
   '/circles': typeof AppCirclesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/exams': typeof AppExamsRoute
   '/logs': typeof AppLogsRoute
   '/reports': typeof AppReportsRoute
   '/requests': typeof AppRequestsRoute
@@ -131,6 +146,7 @@ export interface FileRoutesByTo {
   '/students': typeof AppStudentsRoute
   '/tasks': typeof AppTasksRoute
   '/teachers': typeof AppTeachersRoute
+  '/exam/$token': typeof ExamTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -141,6 +157,7 @@ export interface FileRoutesById {
   '/_app/attendance': typeof AppAttendanceRoute
   '/_app/circles': typeof AppCirclesRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/exams': typeof AppExamsRoute
   '/_app/logs': typeof AppLogsRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/requests': typeof AppRequestsRoute
@@ -149,6 +166,7 @@ export interface FileRoutesById {
   '/_app/students': typeof AppStudentsRoute
   '/_app/tasks': typeof AppTasksRoute
   '/_app/teachers': typeof AppTeachersRoute
+  '/exam/$token': typeof ExamTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -159,6 +177,7 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/circles'
     | '/dashboard'
+    | '/exams'
     | '/logs'
     | '/reports'
     | '/requests'
@@ -167,6 +186,7 @@ export interface FileRouteTypes {
     | '/students'
     | '/tasks'
     | '/teachers'
+    | '/exam/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -175,6 +195,7 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/circles'
     | '/dashboard'
+    | '/exams'
     | '/logs'
     | '/reports'
     | '/requests'
@@ -183,6 +204,7 @@ export interface FileRouteTypes {
     | '/students'
     | '/tasks'
     | '/teachers'
+    | '/exam/$token'
   id:
     | '__root__'
     | '/'
@@ -192,6 +214,7 @@ export interface FileRouteTypes {
     | '/_app/attendance'
     | '/_app/circles'
     | '/_app/dashboard'
+    | '/_app/exams'
     | '/_app/logs'
     | '/_app/reports'
     | '/_app/requests'
@@ -200,11 +223,13 @@ export interface FileRouteTypes {
     | '/_app/students'
     | '/_app/tasks'
     | '/_app/teachers'
+    | '/exam/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  ExamTokenRoute: typeof ExamTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -256,6 +281,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/exams': {
+      id: '/_app/exams'
+      path: '/exams'
+      fullPath: '/exams'
+      preLoaderRoute: typeof AppExamsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/logs': {
@@ -314,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTeachersRouteImport
       parentRoute: typeof AppRoute
     }
+    '/exam/$token': {
+      id: '/exam/$token'
+      path: '/exam/$token'
+      fullPath: '/exam/$token'
+      preLoaderRoute: typeof ExamTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -323,6 +362,7 @@ interface AppRouteChildren {
   AppAttendanceRoute: typeof AppAttendanceRoute
   AppCirclesRoute: typeof AppCirclesRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppExamsRoute: typeof AppExamsRoute
   AppLogsRoute: typeof AppLogsRoute
   AppReportsRoute: typeof AppReportsRoute
   AppRequestsRoute: typeof AppRequestsRoute
@@ -339,6 +379,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAttendanceRoute: AppAttendanceRoute,
   AppCirclesRoute: AppCirclesRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppExamsRoute: AppExamsRoute,
   AppLogsRoute: AppLogsRoute,
   AppReportsRoute: AppReportsRoute,
   AppRequestsRoute: AppRequestsRoute,
@@ -354,6 +395,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  ExamTokenRoute: ExamTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
