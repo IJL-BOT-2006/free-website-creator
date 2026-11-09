@@ -1,0 +1,102 @@
+import { useEffect, useState } from 'react';
+import { createFileRoute } from '@tanstack/react-router';
+import { useServerFn } from '@tanstack/react-start';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Bell, Copy, ClipboardCheck, Loader2, Search, Check, Link2, Pause, Play } from 'lucide-react';
+import { toast } from 'sonner';
+import { PageHeader, EmptyState } from '@/components/page-parts';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useAuth } from '@/lib/auth';
+import { supabase } from '@/integrations/supabase/client';
+import { LEVEL_TITLES, KIND_TITLES, validateQuestionCount, type ExamAttempt, type ExamQuestion } from '@/lib/exam-core';
+import { examCatalog, copyExamLink, examResults, gradeExamAnswer, toggleExamLink, readExamNotification } from '@/lib/exam.functions';
+export const Route = createFileRoute('/_app/exams')({
+  head: () => ({ meta: [{ title: 'الاختبار التجريبي — حبل الله المتين' }, { name: 'description', content: 'اختبارات التجويد وتدريب النورانية ونتائج الطالبات في مقرأة حبل الله المتين.' }, { property: 'og:title', content: 'الاختبار التجريبي — حبل الله المتين' }, { property: 'og:description', content: 'إعداد روابط الاختبارات ومتابعة نتائج الطالبات.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }),
+  component: ExamsPage,
+});
+function ExamsPage() {
+  const { session, role } = useAuth();
+  const queryClient = useQueryClient();
+  const catalogFn = useServerFn(examCatalog), resultsFn = useServerFn(examResults), copyFn = useServerFn(copyExamLink), toggleFn = useServerFn(toggleExamLink), noteFn = useServerFn(readExamNotification);
+  const [level, setLevel] = useState(''), [selected, setSelected] = useState<string[]>([]), [count, setCount] = useState('10'), [busy, setBusy] = useState(false), [url, setUrl] = useState('');
+  const [search, setSearch] = useState(''), [filterLevel, setFilterLevel] = useState('all'), [filterLesson, setFilterLesson] = useState('all'), [date, setDate] = useState(''), [opened, setOpened] = useState<string | null>(null);
+  const allowed = !!role && ['manager', 'deputy', 'supervisor', 'teacher'].includes(role);
+  const catalog = useQuery({ queryKey: ['exam-catalog', session?.user.id], queryFn: () => catalogFn({}), enabled: allowed });
+  const results = useQuery({ queryKey: ['exam-results', session?.user.id], queryFn: () => resultsFn({}), enabled: allowed, refetchInterval: 30000 });
+  useEffect(() => {
+    if (!session || !allowed) return;
+    const channel = supabase.channel(`exam-notes-${crypto.randomUUID()}`).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'exam_notifications', filter: `user_id=eq.${session.user.id}` }, () => { void queryClient.invalidateQueries({ queryKey: ['exam-results'] }); toast.success('وصلت نتيجة اختبار جديدة'); }).subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [session?.user.id, allowed, queryClient]);
+  const lessons = (catalog.data ?? []).filter(l => l.level === Number(level) && level !== '' && l.active);
+  const available = lessons.filter(l => selected.includes(l.id)).reduce((sum, l) => sum + l.available, 0);
+  async function copy() {
+    setBusy(true);
+    try {
+      validateQuestionCount(Number(count), available);
+      const link = await copyFn({ data: { level: Number(level), lessons: selected, count: Number(count) } });
+      if (!link.active) throw new Error('هذا الرابط معطّل؛ فعّليه من قائمة الروابط');
+      const next = `${window.location.origin}/exam/${link.token}`;
+      setUrl(next);
+      try { await navigator.clipboard.writeText(next); toast.success('تم نسخ رابط الاختبار'); } catch { toast.info('الرابط جاهز؛ يمكنكِ نسخه من الحقل'); }
+      await results.refetch();
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'تعذر نسخ الرابط'); } finally { setBusy(false); }
+  }
+  if (!allowed) return <EmptyState title="الاختبارات متاحة للمعلمات والإدارة" />;
+  const links = results.data?.links ?? [];
+  const attempts = (results.data?.attempts ?? []).filter(a => {
+    const link = links.find(l => l.id === a.link_id);
+    return a.student_name.includes(search) && (filterLevel === 'all' || link?.level === Number(filterLevel)) && (filterLesson === 'all' || link?.lesson_ids.includes(filterLesson)) && (!date || a.submitted_at?.startsWith(date));
+  });
+  const unread = results.data?.notifications.filter(n => !n.seen).length ?? 0;
+  return <div className="mx-auto max-w-6xl space-y-8">
+    <PageHeader title="الاختبار التجريبي" actions={<span className="flex items-center gap-2 text-sm text-primary"><ClipboardCheck className="size-5" /> التجويد والقاعدة النورانية</span>} />
+    {(catalog.error || results.error) && <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm"><span>{(catalog.error ?? results.error)?.message}</span><Button variant="outline" onClick={() => { void catalog.refetch(); void results.refetch(); }}>إعادة المحاولة</Button></div>}
+    <section className="space-y-5">
+      <h2 className="text-lg font-bold">رابط للطالبات</h2>
+      <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_180px]">
+        <div className="space-y-2"><Label>المستوى</Label><Select value={level} onValueChange={v => { setLevel(v); setSelected([]); setUrl(''); }}><SelectTrigger className="w-full"><SelectValue placeholder="اختاري المستوى" /></SelectTrigger><SelectContent>{LEVEL_TITLES.map((title, i) => <SelectItem key={i} value={String(i)}>{title}</SelectItem>)}</SelectContent></Select></div>
+        <div className="space-y-2"><Label htmlFor="exam-count">{level === '0' ? 'عدد عناصر القراءة' : 'عدد الأسئلة'}</Label><Input id="exam-count" type="number" min={1} max={available || undefined} step={1} value={count} onChange={e => { setCount(e.target.value); setUrl(''); }} /></div>
+      </div>
+      {level !== '' && <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-3"><h3 className="font-semibold">الدروس</h3><span className="text-xs text-muted-foreground">{selected.length} محدد · {available} {level === '0' ? 'عنصر متاح' : 'سؤال متاح'}</span><div className="mr-auto flex gap-2"><Button variant="ghost" size="sm" onClick={() => { setSelected(lessons.filter(l => l.available > 0).map(l => l.id)); setUrl(''); }}>تحديد الكل</Button><Button variant="ghost" size="sm" onClick={() => { setSelected([]); setUrl(''); }}>إلغاء التحديد</Button></div></div>
+        {catalog.isPending ? <Loader2 className="size-5 animate-spin" /> : lessons.length === 0 ? <p className="py-4 text-sm text-muted-foreground">لم تُجهز دروس هذا المستوى بعد</p> : <div className="grid gap-x-8 gap-y-1 sm:grid-cols-2">{lessons.map(l => <label key={l.id} className="flex items-start gap-3 border-b py-3"><Checkbox className="mt-1" disabled={l.available === 0} checked={selected.includes(l.id)} onCheckedChange={checked => { setSelected(checked ? [...selected, l.id] : selected.filter(id => id !== l.id)); setUrl(''); }} /><span className="min-w-0 flex-1 text-sm leading-7">{l.title}<span className="mr-2 text-xs text-muted-foreground">({l.available})</span></span></label>)}</div>}
+      </div>}
+      <div className="flex flex-wrap items-center gap-3"><Button disabled={busy || !selected.length || Number(count) < 1 || Number(count) > available} onClick={copy}>{busy ? <Loader2 className="size-4 animate-spin" /> : <Copy className="size-4" />} نسخ رابط الاختبار</Button>{Number(count) > available && selected.length > 0 && <p role="alert" className="text-sm text-destructive">المتاح {available} فقط</p>}</div>
+      {url && <Input aria-label="رابط الاختبار" dir="ltr" readOnly value={url} onFocus={e => e.target.select()} />}
+    </section>
+    <Tabs defaultValue="results" className="border-t pt-6">
+      <TabsList className="flex h-auto w-fit flex-wrap"><TabsTrigger value="results">النتائج</TabsTrigger><TabsTrigger value="links"><Link2 className="size-4" /> الروابط</TabsTrigger><TabsTrigger value="notes"><Bell className="size-4" /> الإشعارات {unread > 0 && <span className="text-primary">({unread})</span>}</TabsTrigger>{(role === 'manager' || role === 'deputy') && <TabsTrigger value="content">المحتوى</TabsTrigger>}</TabsList>
+      <TabsContent value="results" className="space-y-5 pt-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><div className="relative"><Search className="absolute right-3 top-3 size-4 text-muted-foreground" /><Input aria-label="البحث باسم الطالبة" className="pr-9" placeholder="اسم الطالبة" value={search} onChange={e => setSearch(e.target.value)} /></div><Select value={filterLevel} onValueChange={setFilterLevel}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">كل المستويات</SelectItem>{LEVEL_TITLES.map((t, i) => <SelectItem key={i} value={String(i)}>{t}</SelectItem>)}</SelectContent></Select><Select value={filterLesson} onValueChange={setFilterLesson}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">كل الدروس</SelectItem>{(catalog.data ?? []).filter(l => filterLevel === 'all' || l.level === Number(filterLevel)).map(l => <SelectItem key={l.id} value={l.id}>{l.title}</SelectItem>)}</SelectContent></Select><Input type="date" aria-label="تاريخ التسليم" value={date} onChange={e => setDate(e.target.value)} /></div>
+        {results.isPending ? <Loader2 className="size-5 animate-spin" /> : attempts.length === 0 ? <EmptyState title="لا توجد نتائج بعد" /> : <div className="space-y-3">{attempts.map(a => <div key={a.id} className="rounded-lg border bg-card"><Button variant="ghost" className="flex h-auto w-full flex-wrap justify-between gap-3 p-4 text-right" onClick={() => setOpened(opened === a.id ? null : a.id)}><span className="space-y-1"><span className="block font-bold">{a.student_name}</span><span className="block text-xs font-normal text-muted-foreground">{LEVEL_TITLES[links.find(l => l.id === a.link_id)?.level ?? 0]} · {a.submitted_at ? new Date(a.submitted_at).toLocaleString('ar') : ''}</span></span><span className="text-sm">{a.pending ? `${a.pending} بانتظار التصحيح` : `${a.score} / ${a.total}`}</span></Button>{opened === a.id && <ResultDetails attempt={a} onGraded={() => { void results.refetch(); }} />}</div>)}</div>}
+      </TabsContent>
+      <TabsContent value="links" className="space-y-3 pt-4">{!links.length ? <EmptyState title="لم تُنسخ روابط بعد" /> : links.map(l => <div key={l.id} className="flex flex-wrap items-center gap-3 border-b py-4"><span className="min-w-0 flex-1 text-sm">{LEVEL_TITLES[l.level]} · {l.question_count} · {l.lesson_ids.map(id => catalog.data?.find(s => s.id === id)?.title).filter(Boolean).join('، ')}</span><span className="text-xs text-muted-foreground">{l.active ? 'فعّال' : 'معطّل'}</span><Button variant="outline" size="icon" aria-label="نسخ الرابط" onClick={async () => { try { await navigator.clipboard.writeText(`${location.origin}/exam/${l.token}`); toast.success('تم النسخ'); } catch { setUrl(`${location.origin}/exam/${l.token}`); } }}><Copy className="size-4" /></Button>{(l.owner_id === session?.user.id || role === 'manager' || role === 'deputy') && <Button variant="outline" size="icon" aria-label={l.active ? 'تعطيل الرابط' : 'تفعيل الرابط'} onClick={async () => { try { await toggleFn({ data: { id: l.id, active: !l.active } }); await results.refetch(); } catch (e) { toast.error(e instanceof Error ? e.message : 'تعذر التعديل'); } }}>{l.active ? <Pause className="size-4" /> : <Play className="size-4" />}</Button>}</div>)}</TabsContent>
+      <TabsContent value="notes" className="space-y-3 pt-4">{!results.data?.notifications.length ? <EmptyState title="لا توجد إشعارات" /> : results.data.notifications.map(n => <Button key={n.id} variant="ghost" className="h-auto w-full justify-start gap-3 border-b py-4 text-right" onClick={async () => { setOpened(n.attempt_id); try { await noteFn({ data: { id: n.id } }); await results.refetch(); } catch { toast.error('تعذر تحديث الإشعار'); } }}><Bell className="size-4 shrink-0 text-primary" /><span className="min-w-0 whitespace-normal"><span className="block font-semibold">{n.student_name} · {LEVEL_TITLES[n.level]}</span><span className="block text-xs font-normal text-muted-foreground">{n.lesson_titles.join('، ')} · {new Date(n.created_at).toLocaleString('ar')}</span>{opened === n.attempt_id && <span className="block text-primary">النتيجة مفتوحة في تبويب النتائج</span>}</span>{n.seen && <Check className="mr-auto size-4" />}</Button>)}</TabsContent>
+      {(role === 'manager' || role === 'deputy') && <TabsContent value="content"><ContentManager lessons={catalog.data ?? []} onChanged={() => { void catalog.refetch(); }} /></TabsContent>}
+    </Tabs>
+  </div>;
+}
+function ResultDetails({ attempt: a, onGraded }: { attempt: ExamAttempt; onGraded: () => void }) {
+  const gradeFn = useServerFn(gradeExamAnswer);
+  const [marks, setMarks] = useState<Record<string, string>>({}), [busy, setBusy] = useState<string | null>(null);
+  const questions: ExamQuestion[] = [...a.snapshot, ...a.reading_items.map(i => ({ id: i.id, kind: 'written' as const, prompt: i.text, lessonTitle: i.lessonTitle, points: 1, answer: i.text }))];
+  return <div className="space-y-5 border-t p-4 sm:p-6">{questions.map((q, index) => <section key={q.id} className="space-y-2 border-b pb-5 last:border-0"><p className="text-xs text-muted-foreground">{index + 1} · {q.lessonTitle} · {KIND_TITLES[q.kind]}</p><h3 className="font-semibold leading-8">{q.prompt}</h3><p className="text-sm leading-8"><span className="text-muted-foreground">إجابة الطالبة: </span>{Array.isArray(a.responses[q.id]) ? (a.responses[q.id] as string[]).join('، ') : a.responses[q.id] || 'دون إجابة'}</p><p className="text-sm leading-8"><span className="text-muted-foreground">الإجابة المعتمدة: </span>{Array.isArray(q.answer) ? q.answer.join('، ') : q.answer}</p>{q.explanation && <p className="text-sm leading-7 text-muted-foreground">{q.explanation}</p>}<div className="flex flex-wrap items-center gap-3"><span className="text-sm">{a.grades[q.id] === undefined ? 'بانتظار التصحيح' : `الدرجة: ${a.grades[q.id]} / ${q.points}`}</span><Input aria-label={`درجة السؤال ${index + 1}`} type="number" min={0} max={q.points} step={0.5} className="w-20" value={marks[q.id] ?? String(a.grades[q.id] ?? '')} onChange={e => setMarks({ ...marks, [q.id]: e.target.value })} /><Button size="sm" variant="outline" disabled={busy === q.id} onClick={async () => { const value = marks[q.id] ?? String(a.grades[q.id] ?? ''); if (value === '') return; setBusy(q.id); try { await gradeFn({ data: { id: a.id, qid: q.id, score: Number(value) } }); onGraded(); toast.success('حُفظت الدرجة'); } catch (e) { toast.error(e instanceof Error ? e.message : 'تعذر الحفظ'); } finally { setBusy(null); } }}>حفظ الدرجة</Button></div></section>)}</div>;
+}
+import type { ExamLesson } from '@/lib/exam-core';
+function ContentManager({ lessons, onChanged }: { lessons: ExamLesson[]; onChanged: () => void }) {
+  const [lessonId, setLessonId] = useState(''), [questions, setQuestions] = useState<ExamQuestion[]>([]), [editing, setEditing] = useState<ExamQuestion | null>(null), [error, setError] = useState('');
+  // Content access is checked by the existing administrator-only database policy.
+  async function load(id: string) { setLessonId(id); setEditing(null); const r = await supabase.from('exam_questions').select('id,content,active').eq('lesson_id', id).order('id'); if (r.error) { setError(r.error.message); return; } setQuestions(r.data.map(q => ({ ...(q.content as unknown as ExamQuestion), id: q.id, active: q.active }))); }
+  return <section className="space-y-4 pt-5"><h2 className="font-bold">مراجعة بنك الأسئلة</h2><Select value={lessonId} onValueChange={id => { void load(id); }}><SelectTrigger className="w-full"><SelectValue placeholder="اختاري الدرس" /></SelectTrigger><SelectContent>{lessons.filter(l => l.level !== 0).map(l => <SelectItem key={l.id} value={l.id}>{LEVEL_TITLES[l.level]} — {l.title}</SelectItem>)}</SelectContent></Select>{error && <p role="alert" className="text-destructive">{error}</p>}{lessonId && <Button variant="outline" onClick={() => setEditing({ id: crypto.randomUUID(), kind: 'single', prompt: '', options: [], answer: '', explanation: '', points: 1 })}>إضافة سؤال</Button>}{editing ? <QuestionEditor question={editing} onCancel={() => setEditing(null)} onSave={async (q, active) => { const result = await supabase.from('exam_questions').upsert({ id: q.id, lesson_id: lessonId, content: JSON.parse(JSON.stringify(q)), active }); if (result.error) throw new Error(result.error.message); await load(lessonId); onChanged(); }} /> : questions.map(q => <div key={q.id} className="flex items-start gap-3 border-b py-3"><p className="flex-1 text-sm leading-7">{q.prompt}<span className="block text-xs text-muted-foreground">{KIND_TITLES[q.kind]}</span></p><Button variant="outline" size="sm" onClick={() => setEditing(q)}>مراجعة وتعديل</Button></div>)}</section>;
+}
+import { Textarea } from '@/components/ui/textarea';
+function QuestionEditor({ question, onCancel, onSave }: { question: ExamQuestion; onCancel: () => void; onSave: (q: ExamQuestion, active: boolean) => Promise<void> }) {
+  const [q, setQ] = useState(question), [active, setActive] = useState((question as ExamQuestion & { active?: boolean }).active ?? true), [options, setOptions] = useState(question.options?.join('\n') ?? ''), [answer, setAnswer] = useState(Array.isArray(question.answer) ? question.answer.join('\n') : question.answer ?? ''), [busy, setBusy] = useState(false);
+  return <form className="space-y-4 rounded-lg border p-5" onSubmit={async e => { e.preventDefault(); setBusy(true); try { const nextOptions = options.split('\n').map(s => s.trim()).filter(Boolean); const nextAnswer = ['multi', 'matching', 'order', 'classify', 'table'].includes(q.kind) ? answer.split('\n').map(s => s.trim()).filter(Boolean) : answer.trim(); if (q.points <= 0 || !q.prompt.trim() || !answer.trim()) throw new Error('أكملي السؤال والإجابة والدرجة'); await onSave({ ...q, options: nextOptions, answer: nextAnswer }, active); toast.success('حُفظ السؤال؛ المحاولات السابقة لا تتغير'); } catch (e) { toast.error(e instanceof Error ? e.message : 'تعذر الحفظ'); } finally { setBusy(false); } }}><Label>نوع السؤال</Label><Select value={q.kind} onValueChange={v => setQ({ ...q, kind: v as ExamQuestion['kind'] })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{Object.entries(KIND_TITLES).map(([id, title]) => <SelectItem key={id} value={id}>{title}</SelectItem>)}</SelectContent></Select><Label>السؤال</Label><Textarea required value={q.prompt} onChange={e => setQ({ ...q, prompt: e.target.value })} /><Label>الخيارات أو صفوف الجدول — كل عنصر بسطر</Label><Textarea value={options} onChange={e => setOptions(e.target.value)} /><Label>الإجابة المعتمدة — كل عنصر بسطر عند تعدد الإجابات</Label><Textarea required value={answer} onChange={e => setAnswer(e.target.value)} /><Label>التوضيح والمصدر</Label><Textarea value={q.explanation} onChange={e => setQ({ ...q, explanation: e.target.value })} /><Label>الدرجة</Label><Input type="number" min={0.5} max={100} step={0.5} value={q.points} onChange={e => setQ({ ...q, points: Number(e.target.value) })} /><label className="flex items-center gap-2"><Checkbox checked={active} onCheckedChange={v => setActive(v === true)} /> معتمد ومتاح للسحب</label><div className="flex gap-2"><Button type="submit" disabled={busy}>حفظ</Button><Button type="button" variant="outline" onClick={onCancel}>إلغاء</Button></div></form>;
+}
