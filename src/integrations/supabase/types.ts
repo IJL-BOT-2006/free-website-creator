@@ -181,6 +181,204 @@ export type Database = {
         }
         Relationships: []
       }
+      exam_attempts: {
+        Row: {
+          grades: Json
+          id: string
+          link_id: string
+          pending: number
+          reading_items: Json
+          responses: Json
+          score: number
+          secret_hash: string
+          snapshot: Json
+          started_at: string
+          status: string
+          student_name: string
+          submitted_at: string | null
+          total: number
+        }
+        Insert: {
+          grades?: Json
+          id?: string
+          link_id: string
+          pending?: number
+          reading_items?: Json
+          responses?: Json
+          score?: number
+          secret_hash: string
+          snapshot?: Json
+          started_at?: string
+          status?: string
+          student_name: string
+          submitted_at?: string | null
+          total?: number
+        }
+        Update: {
+          grades?: Json
+          id?: string
+          link_id?: string
+          pending?: number
+          reading_items?: Json
+          responses?: Json
+          score?: number
+          secret_hash?: string
+          snapshot?: Json
+          started_at?: string
+          status?: string
+          student_name?: string
+          submitted_at?: string | null
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_attempts_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "exam_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_lessons: {
+        Row: {
+          active: boolean
+          id: string
+          level: number
+          position: number
+          reading_items: Json
+          source: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          id: string
+          level: number
+          position?: number
+          reading_items?: Json
+          source?: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          level?: number
+          position?: number
+          reading_items?: Json
+          source?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      exam_links: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          lesson_ids: string[]
+          level: number
+          owner_id: string
+          question_count: number
+          settings_key: string
+          token: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          lesson_ids: string[]
+          level: number
+          owner_id: string
+          question_count: number
+          settings_key: string
+          token?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          lesson_ids?: string[]
+          level?: number
+          owner_id?: string
+          question_count?: number
+          settings_key?: string
+          token?: string
+        }
+        Relationships: []
+      }
+      exam_notifications: {
+        Row: {
+          attempt_id: string
+          created_at: string
+          id: string
+          lesson_titles: string[]
+          level: number
+          seen: boolean
+          student_name: string
+          user_id: string
+        }
+        Insert: {
+          attempt_id: string
+          created_at?: string
+          id?: string
+          lesson_titles: string[]
+          level: number
+          seen?: boolean
+          student_name: string
+          user_id: string
+        }
+        Update: {
+          attempt_id?: string
+          created_at?: string
+          id?: string
+          lesson_titles?: string[]
+          level?: number
+          seen?: boolean
+          student_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_notifications_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "exam_attempts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_questions: {
+        Row: {
+          active: boolean
+          content: Json
+          id: string
+          lesson_id: string
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          content: Json
+          id: string
+          lesson_id: string
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          content?: Json
+          id?: string
+          lesson_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_questions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "exam_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       login_directory: {
         Row: {
           active: boolean
@@ -904,6 +1102,34 @@ export type Database = {
       can_view_circle: {
         Args: { _circle_id: string; _user_id: string }
         Returns: boolean
+      }
+      exam_can_view: { Args: { _owner: string }; Returns: boolean }
+      exam_catalog: { Args: never; Returns: Json }
+      exam_copy_link: {
+        Args: { _count: number; _lessons: string[]; _level: number }
+        Returns: Json
+      }
+      exam_grade: {
+        Args: { _id: string; _qid: string; _score: number }
+        Returns: undefined
+      }
+      exam_public_attempt: {
+        Args: { _id: string; _secret: string }
+        Returns: Json
+      }
+      exam_public_link: { Args: { _token: string }; Returns: Json }
+      exam_save: {
+        Args: {
+          _id: string
+          _responses: Json
+          _secret: string
+          _submit?: boolean
+        }
+        Returns: Json
+      }
+      exam_start: {
+        Args: { _name: string; _secret: string; _token: string }
+        Returns: Json
       }
       has_role: {
         Args: {
