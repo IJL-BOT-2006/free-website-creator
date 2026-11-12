@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import type { ExamQuestion } from '@/lib/exam-core';
-export function ExamAnswer({ question: q, value, onChange, disabled }: { question: ExamQuestion; value?: string | string[]; onChange: (v: string | string[]) => void; disabled?: boolean }) {
+export function ExamAnswer({ question: q, value, onChange, disabled }: { question: ExamQuestion; value?: string | string[] | undefined; onChange: (v: string | string[]) => void; disabled?: boolean }) {
   if (q.kind === 'single' || q.kind === 'boolean') return <RadioGroup value={typeof value === 'string' ? value : ''} onValueChange={onChange} disabled={disabled} className="gap-3">{q.options?.map((o, i) => <label key={o} className="flex cursor-pointer items-center gap-3 rounded-lg border bg-card p-4 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"><RadioGroupItem value={o} id={`${q.id}-${i}`} /> <span className="text-sm leading-7">{o}</span></label>)}</RadioGroup>;
   if (q.kind === 'multi') return <div className="space-y-3">{q.options?.map(o => <label key={o} className="flex items-center gap-3 rounded-lg border p-4"><Checkbox disabled={disabled} checked={Array.isArray(value) && value.includes(o)} onCheckedChange={checked => onChange(checked ? [...(Array.isArray(value) ? value : []), o] : (Array.isArray(value) ? value : []).filter(v => v !== o))} /><span className="text-sm leading-7">{o}</span></label>)}</div>;
   if (q.kind === 'order') {
