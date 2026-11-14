@@ -474,17 +474,17 @@ function StudentsPage() {
                       onChange={(e) => setForm({ ...form, birth_date: e.target.value })}
                     />
                   </div>
-                  <div className="space-y-2">
+                                    <div className="space-y-2">
                     <Label>دولة الإقامة</Label>
                     <CountrySelect
-                      multiple
-                      value={form.origin_country}
-                      onChange={(v) => setForm({ ...form, origin_country: v })}
+                      value={form.country}
+                      onChange={(v) => setForm({ ...form, country: v })}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>الدولة الأصلية</Label>
                     <CountrySelect
+                      multiple
                       value={form.origin_country}
                       onChange={(v) => setForm({ ...form, origin_country: v })}
                     />
